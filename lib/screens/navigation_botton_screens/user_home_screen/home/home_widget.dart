@@ -140,7 +140,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                                                 StyleText(
                                                                               Localizations.localeOf(context).languageCode == "ar" ? "${widget.special[index].categories![indexx].arname}" : "${widget.special[index].categories![indexx].enname}",
                                                                               textColor: kSpecialColor,
-                                                                              maxLines: 5,
+                                                                              maxLines: 6,
                                                                               textAlign: TextAlign.center,
                                                                               fontWeight: FontWeight.w500,
                                                                             ),
