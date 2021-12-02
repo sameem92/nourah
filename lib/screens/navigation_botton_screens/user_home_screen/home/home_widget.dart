@@ -133,7 +133,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                                             padding:
                                                                                 EdgeInsets.zero,
                                                                             width:
-                                                                                SizeConfig.scaleWidth(106),
+                                                                                SizeConfig.scaleWidth(104),
                                                                             alignment:
                                                                                 Alignment.center,
                                                                             child:
