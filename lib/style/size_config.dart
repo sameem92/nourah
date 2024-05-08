@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SizeConfig {
-  static double? _screenWidth;
-  static double? _screenHeight;
+late   double? _screenWidth;
+ late  double? _screenHeight;
   static double _blockWidth = 0;
   static double _blockHeight = 0;
 
@@ -14,7 +14,7 @@ class SizeConfig {
   static bool isPortrait = true;
   static bool isMobilePortrait = false;
 
-  static MediaQueryData? _mediaQueryData;
+  late  MediaQueryData? _mediaQueryData;
 
   void init(BuildContext context) {
 

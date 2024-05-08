@@ -1,18 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_getx_widget.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:producer_family_app/components/headers/app_bar_family.dart';
-import 'package:producer_family_app/components/show_helper.dart';
-import 'package:producer_family_app/storage/api/login_profile_controller.dart';
+import 'package:producer_family_app/storage/providersAndGetx/language_change.dart';
 import 'package:producer_family_app/storage/providersAndGetx/login_profile_getx.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_button.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_field.dart';
 import 'package:producer_family_app/style/style_text.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class InfoProfileUser extends StatefulWidget {
   @override
@@ -23,16 +26,19 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
   late TextEditingController _nameinfo;
   late TextEditingController _phoneNumberinfo;
   late TextEditingController _emailinfo;
-  var _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   bool progress = false;
   bool done = false;
+
   getProfileGetx controller = Get.find();
   bool indicatorBool = false;
   PickedFile? _pickedFile;
+  CroppedFile? _croppedFile;
   ImagePicker imagePicker = ImagePicker();
   @override
   void initState() {
     super.initState();
+
     _nameinfo = TextEditingController(text: controller.profile['name'] ?? '');
     _phoneNumberinfo =
         TextEditingController(text: controller.profile['phone'] ?? "");
@@ -45,16 +51,16 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
 
   @override
   void dispose() {
-    super.dispose();
     _nameinfo.dispose();
     _phoneNumberinfo.dispose();
     _emailinfo.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWhite(
+      appBar: appBarWhite(
         context,
         title: AppLocalizations.of(context)!.infoTitle,
         onPressed: () {},
@@ -68,7 +74,7 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
         ),
         child: GetX<getProfileGetx>(builder: (getProfileGetx controller) {
           return controller.isLoading.value
-              ? Center(child:  indicator_nourah_loading())
+              ? Center(child: indicatorNourahLoading())
               : SingleChildScrollView(
                   child: Form(
                     key: _formKey,
@@ -81,14 +87,15 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
                           onTap: () async {
                             await pickImage();
                           },
-                          child: _pickedFile != null
+                          child: _croppedFile != null
                               ? CircleAvatar(
                                   backgroundImage:
-                                      AssetImage(_pickedFile!.path),
+                                      AssetImage(_croppedFile!.path),
                                   radius: 75,
                                 )
-                              : image_circle(
-                              imageString:     controller.profile["image"] ?? '',
+                              : ImageCircle(
+                                  imageString:
+                                      controller.profile["image"] ?? '',
                                   radius: 75,
                                 ),
                         ),
@@ -98,7 +105,7 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
                         StyleField(
                           controller: _nameinfo,
                           title: AppLocalizations.of(context)!.labelnameinfo,
-                          prefixIcon: Icon(Icons.person),
+                          prefixIcon: const Icon(Icons.person),
                           isRequired: true,
                         ),
                         SizedBox(
@@ -108,7 +115,7 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
                           controller: _phoneNumberinfo,
                           title:
                               AppLocalizations.of(context)!.labephoneNumberinfo,
-                          prefixIcon: Icon(Icons.phone_android_outlined),
+                          prefixIcon: const Icon(Icons.phone_android_outlined),
                           keyboardType: TextInputType.phone,
                           isRequired: true,
                           isPhone: true,
@@ -119,35 +126,38 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
                         StyleField(
                           controller: _emailinfo,
                           title: AppLocalizations.of(context)!.emailinfo,
-                          prefixIcon: Icon(Icons.email_outlined),
+                          prefixIcon: const Icon(Icons.email_outlined),
                           keyboardType: TextInputType.emailAddress,
                           isEmail: true,
                           isRequired: true,
                         ),
-                        SizedBox(
-                          height: hSpaceLargevv,
-                        ),
-                        StyleButton(
-                          AppLocalizations.of(context)!.saveinfo,
-                          onPressed: () async {
+                        progress != true
+                            ? SizedBox(
+                                height: hSpaceLargevv,
+                              )
+                            : const SizedBox(),
+                        progress != true
+                            ? StyleButton(
+                                AppLocalizations.of(context)!.saveinfo,
+                                onPressed: () async {
+                                  bool isValidate =
+                                      _formKey.currentState!.validate();
+                                  if (isValidate) {
+                                    FocusScope.of(context).unfocus();
 
-                            bool isValidate = _formKey.currentState!.validate();
-                            if (isValidate) {
-                              FocusScope.of(context).unfocus();
-
-                              setState(() {
-                                progress = true;
-                                done = false;
-                              });
-                              await updateProfile();
-                              setState(() {
-                                progress = false;
-                                done = true;
-                              });
-
-                            }
-                          },
-                        ),
+                                    setState(() {
+                                      progress = true;
+                                      done = false;
+                                    });
+                                    await updateProfile();
+                                    setState(() {
+                                      progress = false;
+                                      done = true;
+                                    });
+                                  }
+                                },
+                              )
+                            : const SizedBox(),
                         Column(
                           children: [
                             SizedBox(
@@ -155,20 +165,21 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
                             ),
                             SizedBox(
                                 height: SizeConfig.scaleHeight(50),
-                                width:SizeConfig.scaleWidth(50),
+                                width: SizeConfig.scaleWidth(50),
                                 child: Stack(
                                   fit: StackFit.expand,
                                   children: [
-                                  progress == true
-                                   ? indicator_nourah_loading() : Column(),
+                                    progress == true
+                                        ? indicatorNourahLoadingSpecial()
+                                        : Column(),
                                     done == true
-                                        ? indicator_nourah_done()
+                                        ? indicatorNourahDone()
                                         : Column()
                                   ],
                                 ))
                           ],
                         ),
-                        divider_app(height: 100),
+                        dividerApp(height: 100),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -176,8 +187,11 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
                               children: [
                                 Icon(
                                   Icons.account_balance_wallet_outlined,
-                                  size: fIconSmall,
-                                  color: kSecondaryColor,
+                                  size: fIcon,
+                                  color: kSpecialColor,
+                                ),
+                                SizedBox(
+                                  width: wSpace,
                                 ),
                                 StyleText(
                                   AppLocalizations.of(context)!.walletInfo,
@@ -185,7 +199,7 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
                               ],
                             ),
                             StyleText(
-                              "${controller.profile['credit'] ?? ""}  ${AppLocalizations.of(context)!.reyal}    ",
+                              "${controller.profile['credit'] ?? "0"}  ${AppLocalizations.of(context)!.reyal}    ",
                               textColor: kSpecialColor,
                               fontWeight: FontWeight.w800,
                             ),
@@ -200,27 +214,57 @@ class _InfoProfileUserState extends State<InfoProfileUser> {
     );
   }
 
-
-
   Future pickImage() async {
     _pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
-    if (_pickedFile != null) setState(() {});
+    if (_pickedFile != null) {
+      CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: _pickedFile!.path,
+        cropStyle: CropStyle.circle,
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 70,
+        aspectRatio: const CropAspectRatio(ratioX: 60, ratioY: 60),
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+        ],
+        uiSettings: [
+          AndroidUiSettings(
+              toolbarTitle: 'Cropper',
+              toolbarColor: kSpecialColor,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false),
+          IOSUiSettings(
+            title: 'Cropper',
+            aspectRatioLockDimensionSwapEnabled: true,
+            aspectRatioLockEnabled: true,
+            rotateButtonsHidden: true,
+            rotateClockwiseButtonHidden: true,
+          ),
+        ],
+      );
+      setState(() {
+        _croppedFile = croppedFile;
+      });
+    }
   }
 
   Future updateProfile() async {
-
-  await  controller.updateProfile(
-        path2:_pickedFile !=null ?_pickedFile!.path:null,
-        path1:_pickedFile !=null ?_pickedFile!.path:null,
+    await controller.updateProfile(
+        path2: _croppedFile != null ? _croppedFile!.path : null,
+        path1: _croppedFile != null ? _croppedFile!.path : null,
         notes: "",
         ennotes: "",
         name: _nameinfo.text,
         email: _emailinfo.text,
-        phone: _phoneNumberinfo.text, uploadEvent: (bool status) {
-      if (status) {
-
-      }
-    }, context: context, minimum_order: '');
-
+        lat: Provider.of<LatNotiferUser>(context, listen: false).latUser,
+        lng: Provider.of<LongNotiferUser>(context, listen: false).longUser,
+        address:
+            Provider.of<stringNotiferUser>(context, listen: false).addressUser,
+        phone: _phoneNumberinfo.text,
+        uploadEvent: (bool status) {
+          if (status) {}
+        },
+        context: context,
+        minimum_order: '');
   }
 }

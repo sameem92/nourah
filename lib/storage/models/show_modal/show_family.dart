@@ -11,7 +11,7 @@ late DataFamily <ProductsFamily> products;
     if (json['familycategories'] != null) {
       familycategories = <Familycategories>[];
       json['familycategories'].forEach((v) {
-        familycategories.add(new Familycategories.fromJson(v));
+        familycategories.add(Familycategories.fromJson(v));
       });
     }
     // familycategories = (json['familycategories'] != null
@@ -98,33 +98,29 @@ class Family {
     available = json['available'];
     km = json['km'];
     policy =
-    (json['policy'] != null ? new Policy.fromJson(json['policy']) : null)!;
+    (json['policy'] != null ? Policy.fromJson(json['policy']) : null)!;
     if (json['comments'] != null) {
       comments = <Comments>[];
       json['comments'].forEach((v) {
-        comments.add(new Comments.fromJson(v));
+        comments.add(Comments.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['image'] = this.image;
-    data['cover_image'] = this.coverImage;
-    data['notes'] = this.notes;
-    data['ennotes'] = this.ennotes;
-    data['minimum_order'] = this.minimumOrder;
-    data['rate'] = this.rate;
-    data['available'] = this.available;
-    data['km'] = this.km;
-    if (this.policy != null) {
-      data['policy'] = this.policy.toJson();
-    }
-    if (this.comments != null) {
-      data['comments'] = this.comments.map((v) => v.toJson()).toList();
-    }
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['image'] = image;
+    data['cover_image'] = coverImage;
+    data['notes'] = notes;
+    data['ennotes'] = ennotes;
+    data['minimum_order'] = minimumOrder;
+    data['rate'] = rate;
+    data['available'] = available;
+    data['km'] = km;
+    data['policy'] = policy.toJson();
+    data['comments'] = comments.map((v) => v.toJson()).toList();
     return data;
   }
 }
@@ -145,12 +141,12 @@ class Policy {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['arpolicy'] = this.arpolicy;
-    data['enpolicy'] = this.enpolicy;
-    data['created_at'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['arpolicy'] = arpolicy;
+    data['enpolicy'] = enpolicy;
+    data['created_at'] = createdAt;
     return data;
   }
 }
@@ -177,15 +173,15 @@ class Comments {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['family_id'] = this.familyId;
-    data['order_id'] = this.orderId;
-    data['comment'] = this.comment;
-    data['rate'] = this.rate;
-    data['created_at'] = this.createdAt;
-    data['username'] = this.username;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['family_id'] = familyId;
+    data['order_id'] = orderId;
+    data['comment'] = comment;
+    data['rate'] = rate;
+    data['created_at'] = createdAt;
+    data['username'] = username;
     return data;
   }
 }
@@ -201,20 +197,20 @@ class Familycategories {
   Familycategories.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     userId = json['user_id'];
-    arname = json['arname'];
+    arname = json['arname']??"";
     enname = json['enname'] ?? '';
     deleted = json['deleted'];
     createdAt = json['created_at'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['arname'] = this.arname;
-    data['enname'] = this.enname;
-    data['deleted'] = this.deleted;
-    data['created_at'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['arname'] = arname;
+    data['enname'] = enname;
+    data['deleted'] = deleted;
+    data['created_at'] = createdAt;
     return data;
   }
 }
@@ -229,47 +225,50 @@ class ProductsFamily {
   late int durationFrom;
   late int durationTo;
   late String durationUnit;
-  late int offerPrice;
-  late int offerDiscount;
+  late dynamic offerPrice;
+  late dynamic offerDiscount;
   late String images;
   late int km;
+  late int offerStatus;
   late String? familystatus;
-  late int familyrate;
+  late dynamic familyrate;
 
   ProductsFamily.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     userId = json['user_id'];
-    arname = json['arname'];
-    enname = json['enname'];
-    price = json['price'];
-    category = json['category'];
-    durationFrom = json['duration_from'];
-    durationTo = json['duration_to'];
-    durationUnit = json['duration_unit'];
-    offerPrice = json['offer_price'];
-    offerDiscount = json['offer_discount'];
+    arname = json['arname']??"";
+    enname = json['enname']??'';
+    price = json['price']??0;
+    category = json['category']??0;
+    durationFrom = json['duration_from']??0;
+    durationTo = json['duration_to']??0;
+    offerStatus = json['offer_status']??0;
+    durationUnit = json['duration_unit']??'';
+    offerPrice = json['offer_price']??0;
+    offerDiscount = json['offer_discount']??0;
     images = json['images'];
-    km = json['km'];
+    km = json['km']??0;
     familystatus = json['familystatus'];
     familyrate = json['familyrate'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['arname'] = this.arname;
-    data['enname'] = this.enname;
-    data['price'] = this.price;
-    data['duration_from'] = this.durationFrom;
-    data['duration_to'] = this.durationTo;
-    data['duration_unit'] = this.durationUnit;
-    data['offer_price'] = this.offerPrice;
-    data['offer_discount'] = this.offerDiscount;
-    data['images'] = this.images;
-    data['km'] = this.km;
-    data['familystatus'] = this.familystatus;
-    data['familyrate'] = this.familyrate;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['arname'] = arname;
+    data['offer_status'] = offerStatus;
+    data['enname'] = enname;
+    data['price'] = price;
+    data['duration_from'] = durationFrom;
+    data['duration_to'] = durationTo;
+    data['duration_unit'] = durationUnit;
+    data['offer_price'] = offerPrice;
+    data['offer_discount'] = offerDiscount;
+    data['images'] = images;
+    data['km'] = km;
+    data['familystatus'] = familystatus;
+    data['familyrate'] = familyrate;
     return data;
   }
 }

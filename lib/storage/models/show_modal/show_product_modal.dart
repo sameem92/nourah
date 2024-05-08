@@ -1,39 +1,39 @@
 class BaseRexponse {
- late String message;
- late ShowProductModal? data;
- late String code;
+ late dynamic message;
+ late  ShowProductModal? data;
+ late dynamic code;
 
 
   BaseRexponse.fromJson(Map<String, dynamic> json) {
     message = json['message'];
-    data = json['data'] != null ? new ShowProductModal.fromJson(json['data']) : null;
+    data = json['data'] != null ? ShowProductModal.fromJson(json['data']) : null;
     code = json['code'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data?.toJson();
     }
-    data['code'] = this.code;
+    data['code'] = code;
     return data;
   }
 }
 
 class ShowProductModal {
- late int id;
- late int userId;
- late String arname;
- late String enname;
- late int price;
- late int durationFrom;
- late int durationTo;
- late String durationUnit;
- late int offerPrice;
- late int offerDiscount;
+ late dynamic id;
+ late dynamic userId;
+ late dynamic arname;
+ late dynamic enname;
+ late dynamic price;
+ late dynamic durationFrom;
+ late dynamic durationTo;
+ late dynamic durationUnit;
+ late dynamic offerPrice;
+ late dynamic offerDiscount;
  late List<ImagesProduct>? images;
- late int rate;
+ late dynamic rate;
 
 
   ShowProductModal.fromJson(Map<String, dynamic> json) {
@@ -50,37 +50,37 @@ class ShowProductModal {
     if (json['images'] != null) {
       images = <ImagesProduct>[];
       json['images'].forEach((v) {
-        images?.add(new ImagesProduct.fromJson(v));
+        images?.add(ImagesProduct.fromJson(v));
       });
     }
     rate = json['rate'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['arname'] = this.arname;
-    data['enname'] = this.enname;
-    data['price'] = this.price;
-    data['duration_from'] = this.durationFrom;
-    data['duration_to'] = this.durationTo;
-    data['duration_unit'] = this.durationUnit;
-    data['offer_price'] = this.offerPrice;
-    data['offer_discount'] = this.offerDiscount;
-    if (this.images != null) {
-      data['images'] = this.images?.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['arname'] = arname;
+    data['enname'] = enname;
+    data['price'] = price;
+    data['duration_from'] = durationFrom;
+    data['duration_to'] = durationTo;
+    data['duration_unit'] = durationUnit;
+    data['offer_price'] = offerPrice;
+    data['offer_discount'] = offerDiscount;
+    if (images != null) {
+      data['images'] = images?.map((v) => v.toJson()).toList();
     }
-    data['rate'] = this.rate;
+    data['rate'] = rate;
     return data;
   }
 }
 
 class ImagesProduct {
- late int id;
- late int productId;
- late String image;
- late String createdAt;
+ late dynamic id;
+ late dynamic productId;
+ late dynamic image;
+ late dynamic createdAt;
 
 
   ImagesProduct.fromJson(Map<String, dynamic> json) {
@@ -91,11 +91,11 @@ class ImagesProduct {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['product_id'] = this.productId;
-    data['image'] = this.image;
-    data['created_at'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['product_id'] = productId;
+    data['image'] = image;
+    data['created_at'] = createdAt;
     return data;
   }
 }

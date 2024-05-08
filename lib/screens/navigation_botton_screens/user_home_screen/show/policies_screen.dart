@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:producer_family_app/components/headers/app_bar_family.dart';
@@ -6,18 +7,17 @@ import 'package:producer_family_app/storage/providersAndGetx/home_getx.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_text.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PoliciesScreen extends StatelessWidget {
-  String id;
+  final int id;
 
-  PoliciesScreen({this.id = ''});
+  const PoliciesScreen({this.id = 0});
   @override
   Widget build(BuildContext context) {
-    getShowFamilyGetXMap _getShowFamilyGetXMap = Get.find();
+    GetShowFamilyGetXMap getShowFamilyGetXMap = Get.find();
 
     return Scaffold(
-      appBar: AppBarWhite(
+      appBar: appBarWhite(
         context,
         title: AppLocalizations.of(context)!.policies,
         onPressed: () {},
@@ -43,19 +43,19 @@ class PoliciesScreen extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                    color: kSecondaryColor.withOpacity(.1),
-                    blurRadius: 5,
-                    spreadRadius: 4)
+                    color: kGrey.withOpacity(.1),
+                    blurRadius: 2,
+                    spreadRadius: 1)
               ],
               color: Colors.white),
           alignment: Alignment.topCenter,
-          child: _getShowFamilyGetXMap.isLoading.value
+          child: getShowFamilyGetXMap.isLoading.value
               ? Column(
                   children: [
                     SizedBox(
                       height: SizeConfig.scaleHeight(360),
                     ),
-                    Center(child:  indicator_nourah_loading()),
+                    Center(child: indicatorNourahLoading()),
                   ],
                 )
               : Center(
@@ -63,23 +63,23 @@ class PoliciesScreen extends StatelessWidget {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        _getShowFamilyGetXMap.showfamily['family']
-                        ['policy']!=null
+                        getShowFamilyGetXMap.showfamily['family']['policy'] !=
+                                null
                             ? StyleText(
                                 Localizations.localeOf(context).languageCode ==
                                         "ar"
-                                    ? _getShowFamilyGetXMap.showfamily['family']
+                                    ? getShowFamilyGetXMap.showfamily['family']
                                                 ['policy']['arpolicy'] !=
                                             null
-                                        ? _getShowFamilyGetXMap
+                                        ? getShowFamilyGetXMap
                                                     .showfamily['family']
                                                 ['policy']['arpolicy'] ??
                                             ''
                                         : ""
-                                    : _getShowFamilyGetXMap.showfamily['family']
+                                    : getShowFamilyGetXMap.showfamily['family']
                                                 ['policy']['enpolicy'] !=
                                             null
-                                        ? _getShowFamilyGetXMap
+                                        ? getShowFamilyGetXMap
                                                     .showfamily['family']
                                                 ['policy']['enpolicy'] ??
                                             ''
@@ -89,7 +89,9 @@ class PoliciesScreen extends StatelessWidget {
                                 letterSpacing: 1.3,
                                 wordSpacing: 1.2,
                               )
-                            : Text(''),
+                            : noContent(context,
+                                AppLocalizations.of(context)!.thereIsnoPolices,
+                                height: 280)
                       ],
                     ),
                   ),

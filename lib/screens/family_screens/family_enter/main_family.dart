@@ -1,60 +1,75 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:producer_family_app/screens/public_screens/statistics.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:producer_family_app/screens/family_screens/family_enter/profile/profile_family.dart';
 import 'package:producer_family_app/screens/family_screens/family_enter/store_family/store_family.dart';
 import 'package:producer_family_app/screens/public_screens/notification_screen.dart';
+import 'package:producer_family_app/screens/public_screens/statistics.dart';
+import 'package:producer_family_app/storage/notificatons.dart';
+import 'package:producer_family_app/storage/providersAndGetx/login_profile_getx.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:producer_family_app/style/style_text.dart';
 
 import 'orders/order_family_main.dart';
 
 class MainFamily extends StatefulWidget {
-  int currentIndex;
-  int orderIndex;
+  final int currentIndex;
+  final int orderIndex;
+  final int profileIndex;
 
-  MainFamily({
+  const MainFamily({
     this.currentIndex = 2,
     this.orderIndex = 0,
+    this.profileIndex = 0,
   });
   @override
   _MainFamilyState createState() => _MainFamilyState();
 }
 
-class _MainFamilyState extends State<MainFamily>with SingleTickerProviderStateMixin {
+class _MainFamilyState extends State<MainFamily>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   int _currentIndex = 2;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    managenotificationAction(context);
+
     _tabController = TabController(length: 4, vsync: this);
     _currentIndex = widget.currentIndex;
-
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    super.dispose();
     _tabController.dispose();
+    super.dispose();
   }
+
+  getProfileGetx controller = Get.put(getProfileGetx());
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _screensBottomNavigationBar = [
-      ProfileFamily(),
+    List<Widget> screensBottomNavigationBar = [
+      ProfileFamily(
+        profileIndex: widget.profileIndex,
+      ),
       StoreFamily(),
-      Statistics(family: true,),
+      const Statistics(
+        family: true,
+      ),
       NotificationScreen(),
-      OrderScreenFamilyMain(orderIndex:widget.orderIndex ),
+      OrderScreenFamilyMain(
+        orderIndex: widget.orderIndex,
+      ),
     ];
     return Scaffold(
-      body: _screensBottomNavigationBar.elementAt(_currentIndex),
+        body: screensBottomNavigationBar.elementAt(_currentIndex),
         bottomNavigationBar: CurvedNavigationBar(
           backgroundColor: kSpecialColor.withOpacity(.8),
           buttonBackgroundColor: kBackgroundColor,
@@ -64,7 +79,7 @@ class _MainFamilyState extends State<MainFamily>with SingleTickerProviderStateMi
               _currentIndex = index;
             });
           },
-          animationDuration: Duration(milliseconds: 500),
+          animationDuration: const Duration(milliseconds: 500),
           index: _currentIndex,
           height: SizeConfig.scaleWidth(65),
           items: [
@@ -72,59 +87,68 @@ class _MainFamilyState extends State<MainFamily>with SingleTickerProviderStateMi
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  Icons.family_restroom ,
-                  color: kSecondaryColor.withOpacity(.8),
+                  Icons.family_restroom,
+                  color: controller.profile['available'] == 0
+                      ? kRefuse
+                      : kSpecialColor,
                 ),
-                StyleText(AppLocalizations.of(context)!.profile,fontSize: fSmallv,
-                  textColor: kSecondaryColor.withOpacity(.8),)
+                StyleText(
+                  AppLocalizations.of(context)!.profile,
+                  fontSize: fSmallv,
+                  textColor: controller.profile['available'] == 0
+                      ? kRefuse
+                      : kSpecialColor,
+                )
               ],
             ),
-            Column(              mainAxisSize: MainAxisSize.min,
-
+            Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.store,
-                  color: kSecondaryColor.withOpacity(.8),
+                  color: kSpecialColor,
                 ),
-                StyleText(AppLocalizations.of(context)!.store,fontSize: fSmallv,
-                  textColor: kSecondaryColor.withOpacity(.8),)
-
+                StyleText(AppLocalizations.of(context)!.store,
+                    fontSize: fSmallv, textColor: kSpecialColor)
               ],
             ),
             CircleAvatar(
               radius: SizeConfig.scaleWidth(23),
-              // radius: SizeConfig.scaleHeight(100),
-              backgroundImage: AssetImage('assets/images/family_logo.png'),
+              backgroundImage: const AssetImage(
+                'assets/images/logonourahpinkk.png',
+              ),
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.transparent,
             ),
-
-            Column(              mainAxisSize: MainAxisSize.min,
-
+            Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.notifications_none_outlined,
-                  color: kSecondaryColor.withOpacity(.8),
+                  color: kSpecialColor,
                 ),
-                StyleText(AppLocalizations.of(context)!.notifications,fontSize: fSmallv,
-                  textColor: kSecondaryColor.withOpacity(.8),)
-
+                StyleText(
+                  AppLocalizations.of(context)!.notifications,
+                  fontSize: fSmallv,
+                  textColor: kSpecialColor,
+                )
               ],
             ),
-            Column(              mainAxisSize: MainAxisSize.min,
-
+            Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.backup_table,
-                  color: kSecondaryColor.withOpacity(.8),
+                  color: kSpecialColor,
                 ),
-                StyleText(AppLocalizations.of(context)!.orders,fontSize: fSmallv,
-                  textColor: kSecondaryColor.withOpacity(.8),
+                StyleText(
+                  AppLocalizations.of(context)!.orders,
+                  fontSize: fSmallv,
+                  textColor: kSpecialColor,
                 )
-
               ],
             ),
           ],
-        )
-
-    );
+        ));
   }
 }

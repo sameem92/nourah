@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:producer_family_app/storage/providersAndGetx/language_change.dart';
 import 'package:producer_family_app/style/size_config.dart';
-import 'package:producer_family_app/style/style_button.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_text.dart';
+import 'package:provider/provider.dart';
 
-AppBar appBar_taps(BuildContext context,
+AppBar appBarTaps(BuildContext context,
     {required TabController tabController,
-    required int selectedIndexx,
-    required String tap1,
-    required String tap2,
-    required String tap3,
-    String tap4 = "",
-    bool tap4Exist = false,
-    bool tap3Exist = false}) {
+      required int selectedIndexx,
+      required String tap1,
+      required String tap2,
+      required String tap3,
+      String tap4 = "",
+      bool tap4Exist = false,
+      bool tap3Exist = false,}) {
   return AppBar(
     toolbarHeight: SizeConfig.scaleHeight(20),
     automaticallyImplyLeading: false,
@@ -24,12 +25,13 @@ AppBar appBar_taps(BuildContext context,
       controller: tabController,
       onTap: (int selectedIndex) {
         selectedIndexx = 2;
-
+        Provider.of<intIndexorder>(context, listen: false)
+            .changeIntIndexorder(selectedIndex);
       },
       labelColor: kSpecialColor,
       indicatorWeight: SizeConfig.scaleHeight(3.0),
       unselectedLabelColor: kTextColor,
-      labelPadding: EdgeInsets.only(bottom: 0),
+      labelPadding: const EdgeInsets.only(bottom: 0),
       indicatorColor: kSpecialColor,
       labelStyle: TextStyle(
         fontSize: fLarge,
@@ -59,12 +61,12 @@ class AppBarFamily extends PreferredSize {
   final Widget? bottom;
   final Widget? search;
   final Widget? botoom;
-  AppBarFamily({this.bottom,this.search,this.botoom}) : super(child:StyleText("") ,preferredSize: Size.fromHeight(120),);
+  AppBarFamily({this.bottom,this.search,this.botoom}) : super(child:const StyleText("") ,preferredSize: const Size.fromHeight(120),);
 
   @override
   Size get preferredSize => Size.fromHeight(
-        SizeConfig.scaleWidth(105),
-      );
+    SizeConfig.scaleTextFont(120),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -79,64 +81,61 @@ class AppBarFamily extends PreferredSize {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-             SizedBox(
-               height: SizeConfig.scaleWidth(35),
-
-               child: Row(
+            Expanded(
+              child:  Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                        Expanded(flex: 9,child: search!),
-                        SizedBox(
-                          width: wSpaceSmall,
-                        ),
-                        Expanded(child: botoom!),
-                    SizedBox(
-                      width: wSpace,
-                    ),
+                    Expanded(flex: 9,child: search!),
+
+                    Expanded(child: botoom!),
+
                   ],
                 ),
-             ),
-            SizedBox(height: wSpace,),
-            SizedBox(
-              child: bottom,
-              height: SizeConfig.scaleHeight(35),
+              ),
+SizedBox(height: hSpace,),
+            Expanded(
+
+              child: SizedBox(
+                child: bottom,
+              ),
             ),
-            divider_app(height: 0,),
+
+            dividerApp(height: 0,),
           ],
         ),
       ),
     );
   }
 }
-AppBar AppBarWhite(BuildContext context,
+AppBar appBarWhite(BuildContext context,
     {IconData? iconBack = Icons.arrow_back,bool main = false,
-    String title = "",double elevation =1,
-    required Function onPressed,bool back=false,
-    IconData? icon}) {
+      String title = "",double elevation =1,bool backOk=true,
+      required Function onPressed,bool back=false,Function? onPressedBack,bool onPressedBackBool =false
+      ,  IconData? icon,}) {
   return AppBar(
     centerTitle: true,
 
     title: StyleText(
       title,
-      textColor: kSecondaryColor,
+      textColor: kBackgroundColor,
       fontSize: SizeConfig.scaleWidth(30),
     ),
     elevation: elevation,
-   leading:
-   IconButton(
+    leading:
+    IconButton(
         onPressed: () {
           main==false
-        ?  Navigator.pop(context)
-          :Navigator.pushReplacementNamed(context, "/mainScreen");
-
+              ?  Navigator.pop(context)
+              : backOk==true ?Navigator.pushReplacementNamed(context, "/mainScreen"):null;
+          if(onPressedBackBool)  onPressedBack!();
         },
         icon: Icon(
-          iconBack,
-          color: kSecondaryColor,
+          onPressedBackBool ==false ?iconBack:Icons.close,
+          color: kBackgroundColor,
           size: fIcon,
-        )),
-   // :Column(),
+        ),),
+    // :Column(),
 
     actions: [
       IconButton(
@@ -144,9 +143,9 @@ AppBar AppBarWhite(BuildContext context,
           onPressed();
         },
         icon: Icon(icon),
-        color: kSecondaryColor,
+        color: kBackgroundColor,
       )
     ],
-    backgroundColor: kBackgroundColor,
+    backgroundColor: kSpecialColor,
   );
 }

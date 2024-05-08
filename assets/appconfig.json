@@ -1,0 +1,7 @@
+{
+  "merchantKey":"be9c5dfc990794c60888574d3ba150732ea883e8080474adf862a6fe3032605c",
+
+  "terminalId": "nourahstr",
+  "terminalPass": "no_9878@URWAY",
+  "requestUrl":"https://payments.urway-tech.com/URWAYPGService/transaction/jsonProcess/JSONrequest"
+}

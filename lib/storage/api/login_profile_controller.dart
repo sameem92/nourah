@@ -1,25 +1,30 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:producer_family_app/components/show_helper.dart';
 import 'package:producer_family_app/storage/api/api_links.dart';
 import 'package:producer_family_app/storage/models/login_modal.dart';
+
 import '../shared_preferences_controller.dart';
 
-class loginAndProfileController {
+class LoginAndProfileController {
   Future<bool> loginController(
     BuildContext context, {
     required String email,
+    required String loginType,
     required String password,
     String language = "",
-    String firebase_token = '',
+    String firebaseToken = '',
   }) async {
     var url = Uri.parse(ApiLinks.login);
     var response = await http.post(url, body: {
       'email': email,
       'password': password,
-      "firebase_token": firebase_token
+      "firebase_token": firebaseToken,
+      "login_type": loginType
     }, headers: {
       "Accept-Language": language,
       "accept": "application/json"
@@ -30,18 +35,18 @@ class loginAndProfileController {
       LoginModal loginModal = LoginModal.fromJson(jsonResponse['data']);
       await SharedPreferencesController().save(loginModal);
       await getProfileController();
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
       return true;
     } else if (response.statusCode == 500) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
     } else {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
@@ -63,19 +68,57 @@ class loginAndProfileController {
       'Accept-Language': language
     });
     if (response.statusCode < 400) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
-      print(jsonDecode(response.body)['message']);
-      return true;
+      return Localizations.localeOf(context).languageCode == "ar"
+          ? jsonDecode(response.body)['message'] == 'تم تسجيل الخروج بنجاح'
+          : jsonDecode(response.body)['message'] == 'Successfully logged out'
+              ? true
+              : false; // Helper(
+
+      // return true;
     } else if (response.statusCode == 500) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
     } else {
-      Helper(
+      helper(
+          context: context,
+          message: jsonDecode(response.body)['message'],
+          error: true);
+    }
+    return false;
+  }
+
+//*********************************************************************************************
+  Future<bool> deleteAcountController(BuildContext context,
+      {String language = ""}) async {
+    var url = Uri.parse(ApiLinks.deleteAccount);
+
+    var response = await http.get(url, headers: {
+      HttpHeaders.authorizationHeader: SharedPreferencesController().token,
+      'accept': 'application/json',
+      'content-type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept-Language': language
+    });
+    if (response.statusCode < 400) {
+      helper(
+          context: context,
+          message: jsonDecode(response.body)['message'],
+          error: true);
+      // print(jsonDecode(response.body)['message']);
+      return true;
+    } else if (response.statusCode == 500)
+      helper(
+          context: context,
+          message: jsonDecode(response.body)['message'],
+          error: true);
+    else {
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
@@ -95,19 +138,19 @@ class loginAndProfileController {
       "accept": "application/json"
     });
     if (response.statusCode < 400) {
-      print(jsonDecode(response.body)['data']);
-      Helper(
+      // print(jsonDecode(response.body)['data']);
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
       return true;
     } else if (response.statusCode == 500) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
     } else {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
@@ -137,21 +180,21 @@ class loginAndProfileController {
       var jsonResponse = jsonDecode(response.body);
       LoginModal loginModal = LoginModal.fromJson(jsonResponse['data']);
       await SharedPreferencesController().save(loginModal);
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
-      print(jsonDecode(response.body)['data']);
-      print(' password is $password');
+      // print(jsonDecode(response.body)['data']);
+      // print(' password is $password');
 
       return true;
     } else if (response.statusCode == 500) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
     } else {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
@@ -163,7 +206,7 @@ class loginAndProfileController {
 
   Future<bool> changeValidityController(BuildContext context,
       {required String available, String language = ''}) async {
-    var url = Uri.parse(ApiLinks.change_availablity);
+    var url = Uri.parse(ApiLinks.changeAvailablity);
 
     var response = await http.post(url, body: {
       "available": available,
@@ -174,18 +217,18 @@ class loginAndProfileController {
       'X-Requested-With': 'XMLHttpRequest',
     });
     if (response.statusCode < 400) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
       return true;
     } else if (response.statusCode == 500) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
     } else {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
@@ -212,21 +255,21 @@ class loginAndProfileController {
       'X-Requested-With': 'XMLHttpRequest',
     });
     if (response.statusCode < 400) {
-      print(jsonDecode(response.body)['data']);
-      Helper(
+      // print(jsonDecode(response.body)['data']);
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
-      print(' password is $password');
+      // print(' password is $password');
 
       return true;
     } else if (response.statusCode == 500) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
     } else {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
@@ -236,14 +279,18 @@ class loginAndProfileController {
 
 //*********************************************************************************************
 
-  Future<bool> updateProfileController(BuildContext context,
+  Future<bool> updateProfileController(BuildContext? context,
       {String? path1 = "",
       String? path2 = "",
-      String name = "",
-      String email = "",
-      String phone = "",
-      String notes = "",
-      String minimum_order = "",
+      String name = '',
+      String email = '',
+      String phone = '',
+      String notes = '',
+      bool helpBool = true,
+      dynamic lat,
+      dynamic lng,
+      String address = '',
+      String minimumOrder = "",
       String language = "",
       String ennotes = "",
       required Function(bool status) uploadEvent}) async {
@@ -267,73 +314,192 @@ class loginAndProfileController {
     multiPartFile2 != null ? multiPartRequest.files.add(multiPartFile2) : null;
     multiPartRequest.fields['name'] = name;
     multiPartRequest.fields['email'] = email;
-    multiPartRequest.fields['phone'] = phone;
+    multiPartRequest.fields['lat'] = lat.toString();
+    multiPartRequest.fields['lng'] = lng.toString();
+    multiPartRequest.fields['address'] = address;
+    multiPartRequest.fields['phone'] = phone.toString();
     multiPartRequest.fields['notes'] = notes;
     multiPartRequest.fields['ennotes'] = ennotes;
-    multiPartRequest.fields['minimum_order'] = minimum_order;
+    multiPartRequest.fields['minimum_order'] = minimumOrder.toString();
 
     var response = await multiPartRequest.send();
-response.stream.transform(utf8.decoder).listen((event) {
+    response.stream.transform(utf8.decoder).listen((event) {
       var responseBody = jsonDecode(event);
+
       if (response.statusCode < 400) {
-        Helper(context: context, message: responseBody['message'], error: true);
+        if (context != null && helpBool == true) {
+          helper(
+              context: context, message: responseBody['message'], error: true);
+        }
         uploadEvent(true);
       } else if (response.statusCode == 500) {
-        Helper(context: context, message: responseBody['message'], error: true);
+        if (context != null) {
+          helper(
+              context: context, message: responseBody['message'], error: true);
+        }
         uploadEvent(false);
       } else {
-        Helper(context: context, message: responseBody['message'], error: true);
+        if (context != null) {
+          helper(
+              context: context, message: responseBody['message'], error: true);
+        }
         uploadEvent(false);
       }
     });
 
     return false;
   }
-
 //*********************************************************************************************
 
-  Future getProfileController({BuildContext? context}) async {
-    var url = Uri.parse(ApiLinks.profile);
+  Future<bool> updateLatLanController(BuildContext? context,
+      {bool helpBool = true,
+      dynamic lat,
+      dynamic lng,
+      String? address,
+      String language = "",
+      required Function(bool status) uploadEvent}) async {
+    var url = Uri.parse(
+      ApiLinks.updateprofile,
+    );
 
-    var response = await http.get(url, headers: {
+    var multiPartRequest = http.MultipartRequest('post', url);
+    multiPartRequest.headers["X-Requested-With"] = 'XMLHttpRequest';
+    multiPartRequest.headers["accept"] = 'application/json';
+    multiPartRequest.headers["Accept-Language"] = language;
+    multiPartRequest.headers[HttpHeaders.authorizationHeader] =
+        SharedPreferencesController().token;
+
+    multiPartRequest.fields['lat'] = lat.toString();
+    multiPartRequest.fields['lng'] = lng.toString();
+    multiPartRequest.fields['address'] = address.toString();
+
+    var response = await multiPartRequest.send();
+    response.stream.transform(utf8.decoder).listen((event) {
+      var responseBody = jsonDecode(event);
+
+      if (response.statusCode < 400) {
+        if (context != null && helpBool == true) {
+          helper(
+              context: context, message: responseBody['message'], error: true);
+        }
+        uploadEvent(true);
+      } else if (response.statusCode == 500) {
+        if (context != null) {
+          helper(
+              context: context, message: responseBody['message'], error: true);
+        }
+        uploadEvent(false);
+      } else {
+        if (context != null) {
+          helper(
+              context: context, message: responseBody['message'], error: true);
+        }
+        uploadEvent(false);
+      }
+    });
+
+    return false;
+  }
+//*********************************************************************************************
+
+  Future<bool> updateNameController(
+    BuildContext context, {
+    String name = '',
+  }) async {
+    var url = Uri.parse(
+      ApiLinks.updateprofile,
+    );
+    var response = await http.post(url, body: {
+      'name': name,
+    }, headers: {
       HttpHeaders.authorizationHeader: SharedPreferencesController().token,
-      'X-Requested-With': 'XMLHttpRequest',
       'accept': 'application/json',
-      'content-type': 'application/json'
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept-country': "2"
     });
 
     if (response.statusCode < 400) {
-      if (context != null)
-        Helper(
-            context: context,
-            message: jsonDecode(response.body)['message'],
-            error: true);
-
-      Map<String, dynamic> jsonMap =
-          Map<String, dynamic>.from(json.decode(response.body)['data']);
-      await SharedPreferencesController().saveId(jsonMap['id']);
-      return jsonMap;
+      return true;
     } else if (response.statusCode == 500) {
-      if (context != null)
-        Helper(
-            context: context,
-            message: jsonDecode(response.body)['message'],
-            error: true);
+      helper(
+          context: context,
+          message: jsonDecode(response.body)['message'],
+          error: true);
     } else {
-      if (context != null)
-        Helper(
-            context: context,
-            message: jsonDecode(response.body)['message'],
-            error: true);
+      helper(
+          context: context,
+          message: jsonDecode(response.body)['message'],
+          error: true);
     }
-    return null;
+
+    return false;
   }
 
 //*********************************************************************************************
 
+  Future getProfileController({BuildContext? context, bool? isUpdated}) async {
+    String fileName = "getProfileController.json";
+    var dir = await getTemporaryDirectory();
+    File file = File("${dir.path}/$fileName");
+    if (isUpdated == true && file.existsSync()) {
+      file.deleteSync(recursive: true);
+    }
+    if (file.existsSync()) {
+      // print("getProfileController Loading from cache");
+      var response = file.readAsStringSync();
+      Map<dynamic, dynamic> jsonMap =
+          Map<dynamic, dynamic>.from(json.decode(response)['data']);
+      await SharedPreferencesController().saveId(jsonMap['id']);
+      return jsonMap;
+    } else {
+      // print("getProfileController Loading from net");
+      var url = Uri.parse(ApiLinks.profile);
+
+      var response = await http.get(url, headers: {
+        HttpHeaders.authorizationHeader: SharedPreferencesController().token,
+        'X-Requested-With': 'XMLHttpRequest',
+        'accept': 'application/json',
+        'content-type': 'application/json'
+      });
+
+      if (response.statusCode < 400) {
+        if (context != null) {
+          helper(
+              context: context,
+              message: jsonDecode(response.body)['message'],
+              error: true);
+        }
+
+        Map<dynamic, dynamic> jsonMap =
+            Map<dynamic, dynamic>.from(json.decode(response.body)['data']);
+        await SharedPreferencesController().saveId(jsonMap['id']);
+        file.writeAsStringSync(response.body,
+            flush: true, mode: FileMode.write);
+
+        return jsonMap;
+      } else if (response.statusCode == 500) {
+        if (context != null) {
+          helper(
+              context: context,
+              message: jsonDecode(response.body)['message'],
+              error: true);
+        }
+      } else {
+        if (context != null) {
+          helper(
+              context: context,
+              message: jsonDecode(response.body)['message'],
+              error: true);
+        }
+      }
+      return {};
+    }
+  }
+  //*********************************************************************************************
+
   Future<bool> activeCodeUserController(
-      {BuildContext? context,
-      String firebase_token = '',
+      {required BuildContext context,
+      String firebaseToken = '',
       required String phone,
       required String code,
       String language = ""}) async {
@@ -345,26 +511,38 @@ response.stream.transform(utf8.decoder).listen((event) {
     }, body: {
       'phone': phone,
       'code': code,
-      'firebase_token': firebase_token,
+      'firebase_token': firebaseToken,
     });
     if (response.statusCode < 400) {
       var jsonResponse = jsonDecode(response.body);
-      print(jsonResponse);
+      // print(jsonResponse);
       LoginModal loginModal = LoginModal.fromJson(jsonResponse['data']);
       await SharedPreferencesController().save(loginModal);
-      return true;
+      if (context != null) {
+        helper(
+            context: context,
+            message: jsonDecode(response.body)['message'],
+            error: true);
+      }
+      return Localizations.localeOf(context).languageCode == "ar"
+          ? jsonDecode(response.body)['message'] == 'تم التحقق بنجاح'
+          : jsonDecode(response.body)['message'] == ' Correct Activation Code'
+              ? true
+              : false;
     } else if (response.statusCode == 500) {
-      if (context != null)
-        Helper(
+      if (context != null) {
+        helper(
             context: context,
             message: jsonDecode(response.body)['message'],
             error: true);
+      }
     } else {
-      if (context != null)
-        Helper(
+      if (context != null) {
+        helper(
             context: context,
             message: jsonDecode(response.body)['message'],
             error: true);
+      }
     }
     return false;
   }
@@ -397,18 +575,18 @@ response.stream.transform(utf8.decoder).listen((event) {
       'Accept-Language': language
     });
     if (response.statusCode < 400) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
       return true;
     } else if (response.statusCode == 500) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
     } else {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
@@ -421,14 +599,17 @@ response.stream.transform(utf8.decoder).listen((event) {
     BuildContext context, {
     String? email,
     String language = "",
-    String firebase_token = '',
+    bool saveLoggedInUserGoogleBool = false,
+    bool saveLoggedInUserAppleBool = false,
+    String type = "",
+    String firebaseToken = '',
   }) async {
     var url = Uri.parse(ApiLinks.register);
 
     var response = await http.post(url, body: {
       'email': email,
-      'login_type': 'google',
-      'firebase_token': firebase_token,
+      'login_type': type,
+      'firebase_token': firebaseToken,
     }, headers: {
       'accept': 'application/json',
       'Accept-Language': language
@@ -437,26 +618,32 @@ response.stream.transform(utf8.decoder).listen((event) {
     if (response.statusCode < 400) {
       var jsonResponse = jsonDecode(response.body);
       LoginModal loginModal = LoginModal.fromJson(jsonResponse['data']);
-      await SharedPreferencesController().save(loginModal);
-      await SharedPreferencesController().saveLoggedInUser();
-      await SharedPreferencesController().saveLoggedInUserGoogle();
-      Navigator.pushNamedAndRemoveUntil(
-          context, "/mainScreen", (Route<dynamic> route) => false);
+      if (Localizations.localeOf(context).languageCode == "ar"
+          ? jsonDecode(response.body)['message'] == 'تم التسجيل بنجاح'
+          : jsonDecode(response.body)['message'] == 'Registered Successfully') {
+        await SharedPreferencesController().save(loginModal);
+        await SharedPreferencesController().saveLoggedInUser();
+        await SharedPreferencesController().saveLoggedInUserGoogle();
+      }
 
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
 
-      print(jsonResponse);
-      return true;
+      // print(jsonResponse);
+      return Localizations.localeOf(context).languageCode == "ar"
+          ? jsonDecode(response.body)['message'] == 'تم التسجيل بنجاح'
+          : jsonDecode(response.body)['message'] == 'Registered Successfully'
+              ? true
+              : false;
     } else if (response.statusCode == 500) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
     } else {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
@@ -470,15 +657,15 @@ response.stream.transform(utf8.decoder).listen((event) {
   Future<bool> userRegisterController(
     BuildContext context, {
     String language = "",
-    String firebase_token = '',
-    String phone = "",
+    String firebaseToken = '',
+    String? phone,
   }) async {
     var url = Uri.parse(ApiLinks.register);
 
     var response = await http.post(url, body: {
       'phone': phone,
       'login_type': 'phone',
-      'firebase_token': firebase_token,
+      'firebase_token': firebaseToken,
     }, headers: {
       'accept': 'application/json',
       'Accept-Language': language
@@ -488,16 +675,16 @@ response.stream.transform(utf8.decoder).listen((event) {
       var jsonResponse = jsonDecode(response.body)['data'];
       // Helper(context: context, message: jsonDecode(response.body)['data'], error: true,);
 
-      print(jsonResponse);
+      // print(jsonResponse);
       return true;
     } else if (response.statusCode == 500) {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
       // Helper(context: context, message: jsonDecode(response.body)['data'], error: true,);
     } else {
-      Helper(
+      helper(
           context: context,
           message: jsonDecode(response.body)['message'],
           error: true);
@@ -512,8 +699,9 @@ response.stream.transform(utf8.decoder).listen((event) {
       String language = "",
       String email = '',
       String phone = '',
+      String idnumber = '',
+      String licenseNumber = '',
       String city = '',
-      String identity_number = '',
       String lat = '',
       String lng = '',
       String address = '',
@@ -529,14 +717,15 @@ response.stream.transform(utf8.decoder).listen((event) {
 
     multiPartRequest.headers["Accept-Language"] = language;
 
-    var multiPartFile = await http.MultipartFile.fromPath("image", path);
-    multiPartRequest.files.add(multiPartFile);
+    // var multiPartFile = await http.MultipartFile.fromPath("image", path);
+    // multiPartRequest.files.add(multiPartFile);
     multiPartRequest.fields['login_type'] = "delivery";
     multiPartRequest.fields['name'] = name;
     multiPartRequest.fields['email'] = email;
     multiPartRequest.fields['phone'] = phone;
-    multiPartRequest.fields['city'] = city;
-    multiPartRequest.fields['identity_number'] = identity_number;
+    multiPartRequest.fields['license_number'] = licenseNumber;
+    // multiPartRequest.fields['city'] = city;
+    multiPartRequest.fields['identity_number'] = idnumber;
     multiPartRequest.fields['lat'] = lat;
     multiPartRequest.fields['lng'] = lng;
     multiPartRequest.fields['address'] = address;
@@ -546,14 +735,14 @@ response.stream.transform(utf8.decoder).listen((event) {
       var responseBody = jsonDecode(event);
 
       if (response.statusCode < 400) {
-        Helper(context: context, message: responseBody['message'], error: true);
+        helper(context: context, message: responseBody['message'], error: true);
 
         uploadEvent(true);
       } else if (response.statusCode == 500) {
-        Helper(context: context, message: responseBody['message'], error: true);
+        helper(context: context, message: responseBody['message'], error: true);
         uploadEvent(false);
       } else {
-        Helper(context: context, message: responseBody['message'], error: true);
+        helper(context: context, message: responseBody['message'], error: true);
       }
     });
 

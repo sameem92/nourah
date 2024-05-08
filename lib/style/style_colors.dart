@@ -1,40 +1,30 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_text.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-const kPrimaryColor = Color(0xFF8B8D7E);
-final kSecondaryColor = Color(0xFF87695C).withOpacity(.8);
-const kSecondaryColorButtom = Color(0xFF87695C);
-// const kSecondaryColor = Color(0xFF785B4E);
-// const kSecondaryColor = Color(0xff837672);
-// const kSecondaryColor = Color(0xD0423434);
-// const kSecondaryColor = Color(0xFF6F615D);
-// const kBackgroundColor = Color(0xFFefefef);
-const kBackgroundColor = Color(0xfffafafa);
-// const kTextColor =Color(0xFF785B4E);
-const kTextColor = Color(0xFF6F615D);
-// const kSpecialColor =Color(0xFFF57C00);
-// final kSpecialColor =Colors.orange.shade600;
-final kSpecialColor = Color(0xFFE39B36).withOpacity(1);
-final k2Color = Color(0xFF9D9F8D);
-// final kSpecialColor =Color(0xFFDE9C4D);
-final kConfirm = Colors.green.shade400.withOpacity(.9);
-final kRefuse = Colors.red.shade400.withOpacity(.9);
-// const kSpecialColor =Colors.;
+final Color kSecondaryColor = kSpecialColor;
 
+const Color kGrey = Color(0xff969696);
+
+// rgb(175, 102, 119) #af6677    color app
+const Color kBackgroundColor = Color(0xfffafafa);
+const Color kTextColor = Color(0xff646464);
+final Color kSpecialColor = const Color(0xffb25068).withOpacity(.9);
+
+final Color kConfirm = Colors.green.shade400;
+final Color kRefuse = Colors.red.shade400.withOpacity(.7);
 //vvvvLarge
 final double fLargevv = SizeConfig.scaleTextFont(38);
 
 //titles // focus
- double fLargev = SizeConfig.scaleTextFont(30);
+double fLargev = SizeConfig.scaleTextFont(30);
 
 //tabs navigation  chip
-final double fLarge = SizeConfig.scaleTextFont(20);
-final double fSmall = SizeConfig.scaleTextFont(19);
-final double fSmallv = SizeConfig.scaleWidth(17);
+final double fLarge = SizeConfig.scaleTextFont(22);
+final double fSmall = SizeConfig.scaleTextFont(21);
+final double fSmallv = SizeConfig.scaleWidth(19);
 
 //Icon
 final double fIcon = SizeConfig.scaleTextFont(25);
@@ -69,29 +59,27 @@ final double wSpaceLargev = SizeConfig.scaleWidth(50);
 final double hSpaceSmall = SizeConfig.scaleHeight(5);
 final double wSpaceSmall = SizeConfig.scaleWidth(5);
 
-
-
 //height header
 final double hheader = SizeConfig.scaleHeight(40);
 
 //
-Divider divider_app({
+Divider dividerApp({
   double height = 20,
   double thickness = 0,
 }) {
   return Divider(
     thickness: SizeConfig.scaleHeight(thickness),
     height: SizeConfig.scaleHeight(height),
-    color: kSecondaryColor.withOpacity(.4),
+    color: kGrey.withOpacity(.3),
     indent: SizeConfig.scaleWidth(5),
     endIndent: SizeConfig.scaleWidth(5),
   );
 }
 
-class notes extends StatelessWidget {
+class Notes extends StatelessWidget {
   final double width = double.infinity;
-  String note;
-  notes({width=360, this.note=""});
+  final String note;
+  const Notes({width = 360, this.note = ""});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -103,204 +91,236 @@ class notes extends StatelessWidget {
         bottom: hSpaceLargev,
       ),
       decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          border: Border.all(
-            color: kSecondaryColor.withOpacity(0),
-            width: borderWidth,
-          ),
-          borderRadius:
-              BorderRadius.circular(borderRadius)),
+        color: Colors.grey.shade100,
+        border: Border.all(
+          color: kSpecialColor.withOpacity(.3),
+          width: borderWidth,
+        ),
+        borderRadius: BorderRadius.circular(borderRadius),
+      ),
       child: StyleText(
         note,
-        maxLines: 20,
+        maxLines: 200,
       ),
     );
   }
 }
 
-class image_circle extends StatelessWidget {
-  double size;
-  double radius;
-  String imageString;
+class ImageCircle extends StatelessWidget {
+  final double size;
+  final double radius;
+  final String imageString;
 
-  image_circle({this.imageString='',this.size = 0, this.radius = 45});
+  const ImageCircle({this.imageString = '', this.size = 0, this.radius = 43});
   @override
   Widget build(BuildContext context) {
-    return
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: CachedNetworkImage(
+        key: UniqueKey(),
+        imageBuilder:
+            (BuildContext context, ImageProvider<Object> imageProvider) =>
+                CircleAvatar(
+          backgroundImage: imageString != null || imageString.isNotEmpty
+              ? CachedNetworkImageProvider(imageString)
+              : null,
+          radius: SizeConfig.scaleHeight(radius),
 
-    CachedNetworkImage(
-          imageBuilder: (context, imageProvider) => CircleAvatar(
-            backgroundImage:imageString != null || imageString.isNotEmpty?
-            CachedNetworkImageProvider(imageString):
-            null,
-            // foregroundImage: CachedNetworkImageProvider(imageString),
+          // minRadius: SizeConfig.scaleHeight(radius),
+        ),
+        imageUrl: imageString,
+        fadeInCurve: Curves.easeIn,
+        fadeInDuration: const Duration(microseconds: 1),
+        filterQuality: FilterQuality.low,
+        maxHeightDiskCache: 50,
+        maxWidthDiskCache: 50,
+        memCacheWidth: 1,
+        memCacheHeight: 1,
+        fit: BoxFit.cover,
 
-            radius: SizeConfig.scaleTextFont(radius),
-          ),
-          imageUrl: imageString,
-          fadeInCurve: Curves.bounceInOut,
-          fit: BoxFit.fill,
-color: Colors.transparent,
-          filterQuality: FilterQuality.high,
-colorBlendMode: BlendMode.clear,
-          fadeOutCurve: Curves.bounceInOut,
+// alignment: Alignment.,
+        color: Colors.transparent,
+        fadeOutCurve: Curves.bounceInOut,
 
-          placeholder: (context, url) => CircleAvatar(
-            radius: SizeConfig.scaleTextFont(radius),
-            backgroundImage: AssetImage('assets/images/cover.jpeg'),
+        placeholder: (BuildContext context, String url) => FittedBox(
+          fit: BoxFit.scaleDown,
+          child: CircleAvatar(
+            radius: SizeConfig.scaleHeight(radius),
+            backgroundImage: const AssetImage('assets/images/cover.jpeg'),
             backgroundColor: Colors.transparent,
-
           ),
+        ),
 
-          errorWidget: (context, url, error) {
-            return CircleAvatar(
-              radius: SizeConfig.scaleTextFont(radius),
-              backgroundImage: AssetImage('assets/images/cover.jpeg'),
-
-            );
-          },
-          maxHeightDiskCache: 75,
-        // ),
-      // ),
+        errorWidget: (BuildContext context, String url, error) {
+          return FittedBox(
+            fit: BoxFit.scaleDown,
+            child: CircleAvatar(
+              radius: SizeConfig.scaleHeight(radius),
+              backgroundImage: const AssetImage('assets/images/cover.jpeg'),
+              backgroundColor: Colors.transparent,
+            ),
+          );
+        },
+        // maxHeightDiskCache: 75,
+      ),
     );
   }
 }
 
-class image_container extends StatelessWidget {
+class ImageContainer extends StatelessWidget {
+  final double radius;
+  final double width;
+  final double height;
+  final String imageString;
 
-  double radius;
-  double width;
-  double height;
-  String imageString;
-
-  image_container(this.imageString,
-      {
-      this.radius = 45,
-      this.width = double.infinity,
-      this.height = 100});
+  const ImageContainer(
+    this.imageString, {
+    this.radius = 45,
+    this.width = double.infinity,
+    this.height = 100,
+  });
   @override
   Widget build(BuildContext context) {
-    return
-
-        CachedNetworkImage(
-          imageUrl: imageString ,
-          fadeInCurve: Curves.bounceInOut,
-          width: SizeConfig.scaleWidth(width),
-          height:SizeConfig.scaleHeight(height),
-
+    return CachedNetworkImage(
+      key: UniqueKey(),
+      imageUrl: imageString,
+      fadeInCurve: Curves.easeIn,
+      width: SizeConfig.scaleWidth(width),
+      height: SizeConfig.scaleHeight(height),
+      fadeInDuration: const Duration(microseconds: 1),
+      filterQuality: FilterQuality.high,
+      maxHeightDiskCache: 600,
+      maxWidthDiskCache: 600,
+// color: Colors.transparent,
+      fit: BoxFit.fill,
+      placeholder: (BuildContext context, String url) => Image.asset(
+        'assets/images/cover.jpeg',
+        fit: BoxFit.fill,
+        cacheHeight: 1,
+        color: Colors.transparent,
+        cacheWidth: 1,
+        width: SizeConfig.scaleWidth(width),
+        height: SizeConfig.scaleHeight(height),
+      ),
+      errorWidget: (BuildContext context, String url, error) {
+        return Image.asset(
+          'assets/images/cover.jpeg',
           fit: BoxFit.fill,
-          placeholder: (context, url) => Image.asset(
-            'assets/images/cover.jpeg',
-            fit: BoxFit.cover,
-            width: SizeConfig.scaleWidth(width),
-            height:SizeConfig.scaleHeight(height),
-          ),
-          errorWidget: (context, url, error) {
-           return Image.asset(
-              'assets/images/cover.jpeg',
-              fit: BoxFit.cover,
-             width: SizeConfig.scaleWidth(width),
-             height:SizeConfig.scaleHeight(height),
-            );
-
-          },
-
-          maxHeightDiskCache: 75,
-
+          cacheHeight: 1,
+          cacheWidth: 1,
+          width: SizeConfig.scaleWidth(width),
+          height: SizeConfig.scaleHeight(height),
+          color: Colors.transparent,
+        );
+      },
     );
   }
 }
 
-Center noContent(BuildContext context,String title, {IconData icon :Icons.warning_amber_outlined,double height=320 }) {
+Center noContent(
+  BuildContext context,
+  String title, {
+  IconData icon = Icons.warning_amber_outlined,
+  double height = 320,
+}) {
   return Center(
     child: Column(
       children: [
-        SizedBox(height: SizeConfig.scaleHeight(height),),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // CircularProgressIndicator(),
-            Icon(Icons.warning_amber_outlined,color: kSecondaryColor,),
-            StyleText(title,maxLines: 2,),
-
-          ],
+        SizedBox(
+          height: SizeConfig.scaleHeight(height),
+        ),
+        FittedBox(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.warning_amber_outlined,
+                color: kSpecialColor,
+              ),
+              StyleText(
+                title,
+                maxLines: 2,
+              ),
+            ],
+          ),
         ),
       ],
     ),
   );
 }
-class dividerNourah extends StatelessWidget {
-  const dividerNourah({
+
+class DividerNourah extends StatelessWidget {
+  const DividerNourah({
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return    
-        SizedBox(height: SizeConfig.scaleHeight(15),child: VerticalDivider(color: kSecondaryColor.withOpacity(.4),width: 0,));
-      // StyleText("|",fontSize: SizeConfig.scaleWidth(20),textColor: kSecondaryColor.withOpacity(.5),);
+    return SizedBox(
+      height: SizeConfig.scaleHeight(15),
+      child: VerticalDivider(
+        color: kGrey.withOpacity(.5),
+        width: 0,
+      ),
+    );
   }
 }
 
-//
-//
-// "${controller.products[index].durationUnit == "h"
-// ? AppLocalizations.of(context)!.hour
-//     :"${controller.products[index].durationUnit}" =="m"
-// ? AppLocalizations.of(context)!.minute
-//     : AppLocalizations.of(context)!.day} "
-
-//
-//
-// time:
-// "${controller.products[index].durationTo}-${controller.products[index].durationFrom} "
-// "${controller.products[index].durationUnit == "h"
-// ? AppLocalizations.of(context)!.hour
-//     :"${controller.products[index].durationUnit}" =="m"
-// ? AppLocalizations.of(context)!.minute
-//     : AppLocalizations.of(context)!.day} ",
-
-SizedBox indicator_nourah_loading() {
+SizedBox indicatorNourahLoading() {
   return SizedBox(
-      height: 50,
-      width: 50,
-      child:
-      CircularProgressIndicator(
-        strokeWidth: 7,
-        color: kSpecialColor,
-        valueColor:
-        AlwaysStoppedAnimation(
-            kSecondaryColor),
-        backgroundColor: kSecondaryColor
-            .withOpacity(.5),
-      )
+    height: 50,
+    width: 50,
+    child: CircularProgressIndicator.adaptive(
+      // axisDirection: AxisDirection.down,
+      // color: kSpecialColor,
+      backgroundColor: kSpecialColor,
+    ),
   );
 }
 
-Center indicator_nourah_done() {
+SizedBox indicatorNourahLoadingSpecial() {
+  return SizedBox(
+    height: 50,
+    width: 50,
+    child: GlowingOverscrollIndicator(
+      axisDirection: AxisDirection.down,
+      color: kSpecialColor,
+      child: CircularProgressIndicator.adaptive(
+        strokeWidth: 5,
+        // color: kSpecialColor,
+        valueColor: AlwaysStoppedAnimation(kSpecialColor),
+        backgroundColor: kSpecialColor.withOpacity(.5),
+      ),
+    ),
+  );
+}
+
+Center indicatorNourahDone() {
   return Center(
     child: Stack(
-        fit: StackFit.expand,
-        children: [
-          SizedBox(
-            height: SizeConfig.scaleHeight(100),
-            width: SizeConfig.scaleWidth(100),
-            child: Center(
-              child:
-              CircularProgressIndicator(
-                strokeWidth: 3,
-                color: kSpecialColor
-                    .withOpacity(.8),
-                value: 1,
-              ),
+      fit: StackFit.expand,
+      children: [
+        SizedBox(
+          height: SizeConfig.scaleHeight(100),
+          width: SizeConfig.scaleWidth(100),
+          child: Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 3,
+              color: kSpecialColor.withOpacity(.8),
+              value: 1,
             ),
           ),
-          Icon(
-            Icons.done,
-            color: kSpecialColor,
-            size: SizeConfig
-                .scaleTextFont(35),
-          )
-        ]),
+        ),
+        Icon(
+          Icons.done,
+          color: kSpecialColor,
+          size: SizeConfig.scaleTextFont(35),
+        )
+      ],
+    ),
   );
 }
+
+void launchURL(url) async => await canLaunchUrl(Uri.parse(url))
+    ? await launchUrl(Uri.parse(url))
+    : throw 'Could not launch $url';

@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>54010591596-llesd2j6r8g5io7m89dpr710ga67jni2.apps.googleusercontent.com</string>
+	<string>54010591596-aunhkckju2ir4p3j9buein2ba4qchmvd.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.54010591596-llesd2j6r8g5io7m89dpr710ga67jni2</string>
+	<string>com.googleusercontent.apps.54010591596-aunhkckju2ir4p3j9buein2ba4qchmvd</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>54010591596-7luog6q6b17jpai9tp16lgfdcvn1p2dr.apps.googleusercontent.com</string>
+	<string>54010591596-8nro0n27krj1pj4oravlurr1kk09q478.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyA-kqYpCcHwy2HsSMoImJOoY56P9XrBtYM</string>
 	<key>GCM_SENDER_ID</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.producerFamilyApp</string>
+	<string>com.nourah.app</string>
 	<key>PROJECT_ID</key>
 	<string>producer-family</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:54010591596:ios:b7e4ecd93c9155fe86db49</string>
+	<string>1:54010591596:ios:768d281609ec470386db49</string>
 </dict>
 </plist>

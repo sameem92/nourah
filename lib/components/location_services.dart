@@ -1,32 +1,38 @@
-import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
 class LocationService {
 
 
-  Future<LocationData> getLocation() async {
-    Location location = new Location();
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
+  Future<LocationData> getLocation(BuildContext context) async {
+    Location location = Location();
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
     // للحصول عالموقع مرة واحدة
     LocationData locationData;
     // locationData.longitude;
 
 
 
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        // SystemNavigator.pop();
+        // Navigator.pop(context);
 
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        SystemNavigator.pop();      }
+
+      }
     }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        SystemNavigator.pop();
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        // SystemNavigator.pop();
+        // Navigator.pop(context);
+
+
       }
     }
     // location.onLocationChanged.listen((LocationData currentLocation) {

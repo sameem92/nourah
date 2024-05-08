@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 
 class ContainerApp extends StatelessWidget {
-  Widget? child;
-
+  final Widget? child;
+  final Color? colorContainer;
   ContainerApp({
     this.child,
+    this.colorContainer = Colors.white,
   });
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsetsDirectional.only(
-        start: wCard - 1,
-        end: wCard,
-        top: hCard,
-        bottom: hCard,
+        // start: wCard - 1,
+        // end: wCard,
+        // top: hCard,
+        // bottom: hCard,
       ),
       margin: EdgeInsets.only(
         bottom: hCardMar,
         top: hCardMar,
-        left: wCardMar,
-        right: wCardMar,
+        // left: wCardMar,
+        // right: wCardMar,
       ),
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -30,11 +30,9 @@ class ContainerApp extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-                color: kSecondaryColor.withOpacity(.1),
-                blurRadius: 2,
-                spreadRadius: 1)
+                color: kGrey.withOpacity(.1), blurRadius:2, spreadRadius: 2)
           ],
-          color: Colors.white),
+          color: colorContainer),
       child: child,
     );
   }

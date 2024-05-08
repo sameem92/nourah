@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:producer_family_app/components/containers/card_app.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_text.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CardWidget extends StatelessWidget {
   final String productName;
@@ -16,6 +16,7 @@ class CardWidget extends StatelessWidget {
   final String categoriesArName;
   final String categoriesEnName;
   final bool family;
+  final bool familyProfile;
   final bool familyScreens;
   final bool discountBoolCard;
   final String rate;
@@ -28,7 +29,7 @@ class CardWidget extends StatelessWidget {
   final String offer;
   final Widget categories;
 
-  CardWidget(
+  const CardWidget(
     this.categories, {
     this.productName = '',
     this.familyName = '',
@@ -48,175 +49,199 @@ class CardWidget extends StatelessWidget {
     this.categoriesArName = "",
     this.categoriesEnName = "",
     this.family = false,
+    this.familyProfile = false,
     this.familyScreens = false,
     this.discountBoolCard = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return card_app(
+    return cardApp(
       Row(
         children: [
+          SizedBox(
 
-          Center(
+            width: SizeConfig.scaleWidth(405),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(
-                  width: wBetweenCard,
-                  child: Stack(
+
+                  Stack(
                     children: [
                       StyleText(
                         familyName,
                         textColor: kSpecialColor,
                         textAlign: TextAlign.start,
                         width: wBetweenCard,
-                        // fontWeight: FontWeight.w700,
+                        maxLines: 2,
+                        fontWeight: FontWeight.w500,
                       ),
                       if (family != true)
-                      SizedBox(
-                        width: wBetweenCard,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            // Spacer(),
-                            Expanded(
-                              flex: 4,
-                              child: StyleText(
-                                time,
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              // Spacer(),
+                              Expanded(
+                                flex: 7,
+                                child: StyleText(
+                                  time,
+                                  maxLines: 2,
+                                ),
                               ),
-                            ),
-                            discountBoolCard==true?
-                            dividerNourah():Row(),
-                            discountBoolCard==true?
-                            Expanded(
-                              flex: 2,
-                              child: StyleText(
-                                discount,
+                              discountBoolCard == true
+                                  ? const DividerNourah()
+                                  : Row(),
+                              discountBoolCard == true
+                                  ? Expanded(
+                                      flex: 4,
+                                      child: StyleText(
+                                        discount,
+                                        maxLines: 2,
+                                      ),
+                                    )
+                                  : Row(),
+                              discountBoolCard == true
+                                  ? const DividerNourah()
+                                  : Row(),
+                              discountBoolCard == true
+                                  ? Expanded(
+                                      flex: 4,
+                                      child: StyleText(
+                                        priceBefore,
+                                        maxLines: 2,
+                                        textDecoration:
+                                            TextDecoration.lineThrough,
+                                      ),
+                                    )
+                                  : Row(),
+                              const DividerNourah(),
+                              Expanded(
+                                flex: 5,
+                                child: StyleText(
+                                  price,
+                                  maxLines: 2,
+                                  textColor: kSpecialColor,
+                                  // fontWeight: FontWeight.w700,
+                                ),
                               ),
-                            ):Row(),
-                            discountBoolCard==true? dividerNourah():Row(),
-                            discountBoolCard==true?   Expanded(
-                              flex: 2,
-                              child: StyleText(
-                                priceBefore,
-                                textDecoration: TextDecoration.lineThrough,
-                              ),
-                            ):Row(),
-                            dividerNourah(),
-                            Expanded(
-                              flex: 3,
-                              child: StyleText(
-                                price,
-                                textColor: kSpecialColor,
-                                // fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                            ],
+                          ),
+
                     ],
                   ),
-                ),
-                SizedBox(
-                  height: hSpaceSmall,
-                ),
+                // SizedBox(
+                //   height: hSpaceSmall,
+                // ),
+
+
+
+                familyProfile == true
+                    ? SizedBox(
+                        height: hSpace,
+                      )
+                    : const SizedBox(),
                 if (family == true) categories,
                 if (family != true)
-                  SizedBox(
-                    width: SizeConfig.scaleWidth(314),
-                    child: Stack(
+
+
+
+
+                    Stack(
                       children: [
                         StyleText(
                           productName,
-                          width: SizeConfig.scaleWidth(314),
+                          // width: SizeConfig.scaleWidth(314),
                           textColor: kSpecialColor,
+                          height: SizeConfig.scaleHeight(1.4),
                           // fontWeight: FontWeight.w700,
                         ),
                         StyleText(
                           familyCat,
-                          width: SizeConfig.scaleWidth(314),
+                          // width: SizeConfig.scaleWidth(314),
                           textColor: kSpecialColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ],
                     ),
-                  ),
-                SizedBox(
-                  height: hSpaceSmall,
-                ),
-                SizedBox(
-                  width: wBetweenCard,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      if (familyLocation != '' && familyLocation != null)
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on_outlined,
-                              color: kSecondaryColor,
-                              size: fIconSmall,
-                            ),
-                            StyleText(
-                              "$familyLocation",
-                              textAlign: TextAlign.start,
-                              height: 1.5,
-                            ),
-                          ],
-                        ),
-                      if(familyScreens!=true)
-                      dividerNourah(),
-                      if (state != '' && state != null)
-                        Stack(
-                          children: [
-                            state == 1
-                                ? StyleText(
-                                    AppLocalizations.of(context)!.available,
-                                    textColor: kConfirm,
-                                  )
-                                : state == 0
-                                    ? StyleText(
-                                        AppLocalizations.of(context)!.unavailable,
-                                        textColor: kRefuse,
-                                      )
-                                    : StyleText(""),
-                            StyleText(
-                              timer,
-                              textColor: Colors.green,
-                            ),
-                          ],
-                        ),
-                      if(familyScreens!=true)
 
-                        dividerNourah(),
-                      if (rate != '' && rate != null)
+
+
+                // SizedBox(
+                //   height: hSpaceSmall,
+                // ),
+                familyProfile == false
+                    ?
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                              size: fIconSmall,
-                            ),
-                            StyleText(
-                              rate,
-                              textAlign: TextAlign.start,
-                              height: 1.5,
-                            ),
+                            if (familyLocation != '')
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    color: kTextColor,
+                                    size: fIconSmall,
+                                  ),
+                                  StyleText(
+                                    familyLocation,
+                                    textAlign: TextAlign.start,
+                                    height: 1.2,
+                                  ),
+                                ],
+                              ),
+                            if (familyScreens != true) const DividerNourah(),
+                            if (state != '')
+                              Stack(
+                                children: [
+                                  state == 1
+                                      ? StyleText(
+                                          AppLocalizations.of(context)!.available,
+                                          textColor: kConfirm,
+                                        )
+                                      : state == 0
+                                          ? StyleText(
+                                              AppLocalizations.of(context)!
+                                                  .unavailable,
+                                              textColor: kRefuse,
+                                            )
+                                          : const StyleText(""),
+                                  StyleText(
+                                    timer,
+                                    textColor: Colors.green,
+                                  ),
+                                ],
+                              ),
+                            if (familyScreens != true) const DividerNourah(),
+                            if (rate != '')
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                    size: fIconSmall,
+                                  ),
+                                  StyleText(
+                                    rate,
+                                    textAlign: TextAlign.start,
+                                    height: 1.2,
+                                  ),
+                                ],
+                              ),
+                            if (offer != '')
+                              StyleText(
+                                offer,
+                                textColor: kConfirm,
+                                textAlign: TextAlign.start,
+                              ),
                           ],
-                        ),
-                      if (offer != '' && offer != null)
-                        StyleText(
-                          offer,
-                          textColor: kConfirm,
-                          textAlign: TextAlign.start,
-                        ),
-                    ],
-                  ),
-                ),
+                        )
+
+                    : const SizedBox(),
               ],
             ),
           ),

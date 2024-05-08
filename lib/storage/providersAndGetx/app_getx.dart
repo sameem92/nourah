@@ -1,20 +1,23 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:producer_family_app/storage/api/app_controller.dart';
+import 'package:producer_family_app/storage/models/app_modal/banners_modal.dart';
 import 'package:producer_family_app/storage/models/app_modal/faq_modal.dart';
 import 'package:producer_family_app/storage/models/app_modal/message_modal.dart';
 import 'package:producer_family_app/storage/models/app_modal/notification_modal.dart';
 import 'package:producer_family_app/storage/models/app_modal/social_media_modal.dart';
 import 'package:producer_family_app/storage/models/app_modal/statistics.dart';
 
+class GetAboutUsGetx extends GetxController {
+  String language;
 
-
-class getAboutUsGetx extends GetxController {
-  String Language;
-
-  getAboutUsGetx({this.Language = 'ar'});
+  GetAboutUsGetx({this.language = 'ar'});
   RxMap<String, dynamic> aboutUs = <String, dynamic>{}.obs;
-  static getAboutUsGetx get to => Get.find();
+  static GetAboutUsGetx get to => Get.find();
   var isLoading = true.obs;
 
   @override
@@ -27,7 +30,8 @@ class getAboutUsGetx extends GetxController {
     isLoading(true);
     try {
       var show = await AppController()
-          .getAboutUsController(context: context, Language: Language);
+          .getAboutUsController(context: context, language: language);
+
       if (show != null) {
         aboutUs.value = show;
       }
@@ -37,13 +41,13 @@ class getAboutUsGetx extends GetxController {
   }
 }
 
-class getprivacyGetx extends GetxController {
-  String Language;
+class GetprivacyGetx extends GetxController {
+  String language;
 
-  getprivacyGetx({this.Language = 'ar'});
+  GetprivacyGetx({this.language = 'ar'});
 
   RxMap<String, dynamic> privacies = <String, dynamic>{}.obs;
-  static getSocialGetx get to => Get.find();
+  static GetSocialGetx get to => Get.find();
   var isLoading = true.obs;
 
   @override
@@ -56,7 +60,7 @@ class getprivacyGetx extends GetxController {
     isLoading(true);
     try {
       var show = await AppController()
-          .getPrivacyController(context: context, Language: Language);
+          .getPrivacyController(context: context, language: language);
       if (show != null) {
         privacies.value = show;
       }
@@ -66,9 +70,9 @@ class getprivacyGetx extends GetxController {
   }
 }
 
-class getSocialGetx extends GetxController {
+class GetSocialGetx extends GetxController {
   RxList<SocialMediaModal> socials = <SocialMediaModal>[].obs;
-  static getSocialGetx get to => Get.find();
+  static GetSocialGetx get to => Get.find();
   var isLoading = true.obs;
 
   @override
@@ -92,26 +96,26 @@ class getSocialGetx extends GetxController {
   }
 }
 
-class getFaqGetx extends GetxController {
-  String Language;
+class GetFaqGetx extends GetxController {
+  String language;
 
-  getFaqGetx({this.Language = "ar"});
+  GetFaqGetx({this.language = "ar"});
 
   var isLoading = true.obs;
   RxList<FaqModal> faqs = <FaqModal>[].obs;
-  static getFaqGetx get to => Get.find();
+
+  static GetFaqGetx get to => Get.find();
   @override
   void onInit() {
     getFaqs();
     super.onInit();
   }
-  // Localizations.localeOf(context).languageCode=="ar"?"ar":"en"
 
   Future<void> getFaqs({BuildContext? context}) async {
     isLoading(true);
     try {
       var show = await AppController()
-          .getFaqController(context: context, Language: Language);
+          .getFaqController(context: context, language: language);
       if (show != null) {
         faqs.value = show;
       }
@@ -121,25 +125,25 @@ class getFaqGetx extends GetxController {
   }
 }
 
-class getMessageGetx extends GetxController {
+class GetMessageGetx extends GetxController {
   var isLoading = true.obs;
   String language;
 
-  getMessageGetx({this.language = ""});
+  GetMessageGetx({this.language = ""});
 
   RxList<MessagesModal> messages = <MessagesModal>[].obs;
-  static getMessageGetx get to => Get.find();
+  static GetMessageGetx get to => Get.find();
   @override
   void onInit() {
     getMessages();
     super.onInit();
   }
 
-  Future<void> getMessages({BuildContext? context}) async {
+  Future<void> getMessages({BuildContext? context, bool? isUpdated}) async {
     isLoading(true);
     try {
-      var show = await AppController()
-          .getMessageController(context: context, language: language);
+      var show = await AppController().getMessageController(
+          context: context, language: language, isUpdated: isUpdated);
       if (show != null) {
         messages.value = show;
       }
@@ -147,40 +151,41 @@ class getMessageGetx extends GetxController {
       isLoading(false);
     }
   }
+
   Future<void> sendMessage({
     required BuildContext context,
     required String message,
   }) async {
-    bool add = await  AppController().postMessageController(
-
+    bool add = await AppController().postMessageController(
       language:
-      Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
+          Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
       message: message,
     );
 
     if (add) {
-      getMessages();
+      getMessages(isUpdated: true);
+      // getMessages();
+      // messages.refresh();
     }
   }
 }
 
-class getstatisticsGetx extends GetxController {
+class GetstatisticsGetx extends GetxController {
   var isLoading = true.obs;
 
-  RxMap<String, dynamic> statistices = <String, dynamic>{}.obs;
-  static getstatisticsGetx get to => Get.find();
+  RxMap<dynamic, dynamic> statistices = <dynamic, dynamic>{}.obs;
+  static GetstatisticsGetx get to => Get.find();
   @override
   void onInit() {
     getStatistics();
     super.onInit();
   }
 
-  Future<void> getStatistics({BuildContext? context}) async {
+  Future<void> getStatistics({BuildContext? context, bool? isUpdated}) async {
     isLoading(true);
     try {
-      var show = await AppController().getStatisticsController(
-        context: context,
-      );
+      var show =
+          await AppController().getStatisticsController(context: context);
       if (show != null) {
         statistices.value = show;
       }
@@ -190,10 +195,11 @@ class getstatisticsGetx extends GetxController {
   }
 }
 
-class getCoulmnstatisticsGetx extends GetxController {
+class GetCoulmnstatisticsGetx extends GetxController {
   RxList<StatisticssModal> statistices = <StatisticssModal>[].obs;
+  // String currentName=getCoulmnstatisticsGetx().statistices[0].startDate;
   var isLoading = true.obs;
-  static getstatisticsGetx get to => Get.find();
+  static GetstatisticsGetx get to => Get.find();
   @override
   void onInit() {
     getStatistics();
@@ -203,9 +209,8 @@ class getCoulmnstatisticsGetx extends GetxController {
   Future<void> getStatistics({BuildContext? context}) async {
     isLoading(true);
     try {
-      var show = await AppController().getColumnStatisticsController(
-        context: context,
-      );
+      var show =
+          await AppController().getColumnStatisticsController(context: context);
       if (show != null) {
         statistices.value = show;
       }
@@ -215,10 +220,10 @@ class getCoulmnstatisticsGetx extends GetxController {
   }
 }
 
-class getNotificationsGetx extends GetxController {
+class GetNotificationsGetx extends GetxController {
   var isLoading = true.obs;
   RxList<NotificationsModal> notifications = <NotificationsModal>[].obs;
-  static getMessageGetx get to => Get.find();
+  static GetMessageGetx get to => Get.find();
   @override
   void onInit() {
     getMessages();
@@ -228,13 +233,96 @@ class getNotificationsGetx extends GetxController {
   Future<void> getMessages({BuildContext? context}) async {
     isLoading(true);
     try {
-      var show = await AppController()
-          .getNotificationController(context: context,);
+      var show = await AppController().getNotificationController(
+        context: context,
+      );
       if (show != null) {
         notifications.value = show;
       }
     } finally {
       isLoading(false);
     }
+  }
+}
+
+class GetBannersGetx extends GetxController {
+  var isLoading = true.obs;
+  RxList<BannersModal> banners = <BannersModal>[].obs;
+  static GetBannersGetx get to => Get.find();
+  @override
+  void onInit() {
+    getBanners();
+    super.onInit();
+  }
+
+  Future<void> getBanners({BuildContext? context}) async {
+    isLoading(true);
+    try {
+      var show = await AppController().getBannersController(
+        context: context,
+      );
+      if (show != null) {
+        banners.value = show;
+      }
+    } finally {
+      isLoading(false);
+    }
+  }
+}
+
+class GetNetworkGetx extends GetxController {
+  var connectionType = 1.obs;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _streamSubscription;
+
+  @override
+  void onInit() {
+    super.onInit();
+    getNetwork();
+    _streamSubscription =
+        _connectivity.onConnectivityChanged.listen(_updateState);
+  }
+
+  Future<void> getNetwork() async {
+    ConnectivityResult? result;
+    try {
+      result = await (_connectivity.checkConnectivity());
+    } on PlatformException {
+      // print(e.toString());
+    }
+    return _updateState(result!);
+  }
+
+  _updateState(ConnectivityResult result) {
+    switch (result) {
+      case ConnectivityResult.wifi:
+        connectionType.value = 1;
+        update();
+
+        break;
+      case ConnectivityResult.mobile:
+        connectionType.value = 2;
+        update();
+
+        break;
+      case ConnectivityResult.none:
+        connectionType.value = 0;
+
+        update();
+
+        break;
+      default:
+        Get.snackbar("error network", "failed");
+        break;
+    }
+  }
+
+  @override
+  void onClose() {
+    _streamSubscription.cancel();
+  }
+
+  Future<void> refreshData() async {
+    getNetwork();
   }
 }

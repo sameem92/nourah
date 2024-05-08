@@ -9,19 +9,19 @@ class BaseResponse {
     if (json['data'] != null) {
       data = <MessagesModal>[];
       json['data'].forEach((v) {
-        data?.add(new MessagesModal.fromJson(v));
+        data?.add(MessagesModal.fromJson(v));
       });
     }
     code = json['code'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data?.map((v) => v.toJson()).toList();
     }
-    data['code'] = this.code;
+    data['code'] = code;
     return data;
   }
 }
@@ -34,28 +34,31 @@ class MessagesModal {
  late int parent;
  late String createdAt;
  late String name;
+ late String type;
 
-
+ MessagesModal({required this.type,required this.id,required this.name,required this.message,required this.createdAt});
 
   MessagesModal.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    senderId = json['sender_id'];
-    receiverId = json['receiver_id'];
+    senderId = json['sender_id']??0;
+    receiverId = json['receiver_id']??0;
     message = json['message']??'';
-    parent = json['parent'];
-    createdAt = json['created_at'];
-    name = json['name'];
+    parent = json['parent']??0;
+    type = json['type']??'';
+    createdAt = json['created_at']??'';
+    name = json['name']??"";
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['sender_id'] = this.senderId;
-    data['receiver_id'] = this.receiverId;
-    data['message'] = this.message;
-    data['parent'] = this.parent;
-    data['created_at'] = this.createdAt;
-    data['name'] = this.name;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['sender_id'] = senderId;
+    data['receiver_id'] = receiverId;
+    data['message'] = message;
+    data['parent'] = parent;
+    data['type'] = type;
+    data['created_at'] = createdAt;
+    data['name'] = name;
     return data;
   }
 }

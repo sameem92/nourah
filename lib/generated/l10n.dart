@@ -50,11 +50,51 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
+  /// `Please create your categories in the adjacent menu and then enter the product category here`
+  String get categoriesFirst {
+    return Intl.message(
+      'Please create your categories in the adjacent menu and then enter the product category here',
+      name: 'categoriesFirst',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Nourah`
   String get name {
     return Intl.message(
       'Nourah',
       name: 'name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `discount left`
+  String get discountLeft {
+    return Intl.message(
+      'discount left',
+      name: 'discountLeft',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email is required for us to reach for you\n`
+  String get eamilNess {
+    return Intl.message(
+      'Email is required for us to reach for you\n',
+      name: 'eamilNess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Empty fields`
+  String get emptyFields {
+    return Intl.message(
+      'Empty fields',
+      name: 'emptyFields',
       desc: '',
       args: [],
     );
@@ -110,6 +150,56 @@ class S {
     );
   }
 
+  /// `no more data`
+  String get endContent {
+    return Intl.message(
+      'no more data',
+      name: 'endContent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Online Payment`
+  String get payment {
+    return Intl.message(
+      'Online Payment',
+      name: 'payment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please choose your preferred payment method`
+  String get choosePayment {
+    return Intl.message(
+      'Please choose your preferred payment method',
+      name: 'choosePayment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Operation result`
+  String get operationResult {
+    return Intl.message(
+      'Operation result',
+      name: 'operationResult',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Operation failed,go back`
+  String get resultBack {
+    return Intl.message(
+      'Operation failed,go back',
+      name: 'resultBack',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `profile`
   String get profile {
     return Intl.message(
@@ -120,11 +210,171 @@ class S {
     );
   }
 
-  /// `productå`
+  /// `delete my account`
+  String get deleteMyAccount {
+    return Intl.message(
+      'delete my account',
+      name: 'deleteMyAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `no internet available`
+  String get noInternet {
+    return Intl.message(
+      'no internet available',
+      name: 'noInternet',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `chat with adminstration`
+  String get chatWithAdminstration {
+    return Intl.message(
+      'chat with adminstration',
+      name: 'chatWithAdminstration',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting for the order to be processed`
+  String get waitingForTheFamilyReady {
+    return Intl.message(
+      'Waiting for the order to be processed',
+      name: 'waitingForTheFamilyReady',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please activate the site services`
+  String get locationService {
+    return Intl.message(
+      'Please activate the site services',
+      name: 'locationService',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `order status`
+  String get status {
+    return Intl.message(
+      'order status',
+      name: 'status',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `canceled order`
+  String get canceledOrder {
+    return Intl.message(
+      'canceled order',
+      name: 'canceledOrder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `current order`
+  String get currentOrder {
+    return Intl.message(
+      'current order',
+      name: 'currentOrder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `complete order`
+  String get completeOrder {
+    return Intl.message(
+      'complete order',
+      name: 'completeOrder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `product`
   String get product {
     return Intl.message(
-      'productå',
+      'product',
       name: 'product',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Click to copy the coupon`
+  String get copyCoupon {
+    return Intl.message(
+      'Click to copy the coupon',
+      name: 'copyCoupon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Discount coupon copied`
+  String get couponcopied {
+    return Intl.message(
+      'Discount coupon copied',
+      name: 'couponcopied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `As customers see me`
+  String get asMustomersMeeMe {
+    return Intl.message(
+      'As customers see me',
+      name: 'asMustomersMeeMe',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `there is no comments`
+  String get thereIsnoCommentsInThislocation {
+    return Intl.message(
+      'there is no comments',
+      name: 'thereIsnoCommentsInThislocation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `there is no polices`
+  String get thereIsnoPolices {
+    return Intl.message(
+      'there is no polices',
+      name: 'thereIsnoPolices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `family rate`
+  String get familyRate {
+    return Intl.message(
+      'family rate',
+      name: 'familyRate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `delivery rate`
+  String get deliveryRate {
+    return Intl.message(
+      'delivery rate',
+      name: 'deliveryRate',
       desc: '',
       args: [],
     );
@@ -135,6 +385,16 @@ class S {
     return Intl.message(
       'please enter your personal image',
       name: 'pleaseEnterYourPersonalImage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `there is no archieve`
+  String get thereIsnoArchieve {
+    return Intl.message(
+      'there is no archieve',
+      name: 'thereIsnoArchieve',
       desc: '',
       args: [],
     );
@@ -550,10 +810,10 @@ class S {
     );
   }
 
-  /// `National Identity Number`
+  /// `Identity Number`
   String get idnumber {
     return Intl.message(
-      'National Identity Number',
+      'Identity Number',
       name: 'idnumber',
       desc: '',
       args: [],
@@ -565,6 +825,16 @@ class S {
     return Intl.message(
       'personal Image',
       name: 'personalImage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `license number`
+  String get licenseNumber {
+    return Intl.message(
+      'license number',
+      name: 'licenseNumber',
       desc: '',
       args: [],
     );
@@ -640,6 +910,16 @@ class S {
     );
   }
 
+  /// `discount`
+  String get dis {
+    return Intl.message(
+      'discount',
+      name: 'dis',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `confirm request`
   String get confirmrequest {
     return Intl.message(
@@ -670,11 +950,21 @@ class S {
     );
   }
 
-  /// `new order`
+  /// `new`
   String get neworder {
     return Intl.message(
-      'new order',
+      'new',
       name: 'neworder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `no delivery selected`
+  String get noDeliverySelected {
+    return Intl.message(
+      'no delivery selected',
+      name: 'noDeliverySelected',
       desc: '',
       args: [],
     );
@@ -730,6 +1020,26 @@ class S {
     );
   }
 
+  /// `Waiting for the family's response`
+  String get waitingForTheFamilyResponse {
+    return Intl.message(
+      'Waiting for the family\'s response',
+      name: 'waitingForTheFamilyResponse',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `If your offer is approved,It will appear in the current requests section and you can follow up on your request`
+  String get submitRequest {
+    return Intl.message(
+      'If your offer is approved,It will appear in the current requests section and you can follow up on your request',
+      name: 'submitRequest',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `sign up with apple`
   String get signupwithapple {
     return Intl.message(
@@ -740,11 +1050,11 @@ class S {
     );
   }
 
-  /// `sale over`
-  String get saleover {
+  /// `sale`
+  String get sale {
     return Intl.message(
-      'sale over',
-      name: 'saleover',
+      'sale',
+      name: 'sale',
       desc: '',
       args: [],
     );
@@ -1800,6 +2110,16 @@ class S {
     );
   }
 
+  /// `done`
+  String get doneUser {
+    return Intl.message(
+      'done',
+      name: 'doneUser',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Verify phone`
   String get verifyPhone {
     return Intl.message(
@@ -1835,6 +2155,66 @@ class S {
     return Intl.message(
       'Request again',
       name: 'requestAgain',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delivery time`
+  String get driverTime {
+    return Intl.message(
+      'Delivery time',
+      name: 'driverTime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `in progress`
+  String get inProgress {
+    return Intl.message(
+      'in progress',
+      name: 'inProgress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `done`
+  String get doneOrder {
+    return Intl.message(
+      'done',
+      name: 'doneOrder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not started yet`
+  String get notStartedYet {
+    return Intl.message(
+      'Not started yet',
+      name: 'notStartedYet',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you received what you ordered from the representative?`
+  String get areYouDeliverded {
+    return Intl.message(
+      'Are you sure you received what you ordered from the representative?',
+      name: 'areYouDeliverded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please rate the request`
+  String get pleaseRate {
+    return Intl.message(
+      'Please rate the request',
+      name: 'pleaseRate',
       desc: '',
       args: [],
     );
@@ -1930,10 +2310,10 @@ class S {
     );
   }
 
-  /// `reyal`
+  /// `sr`
   String get reyal {
     return Intl.message(
-      'reyal',
+      'sr',
       name: 'reyal',
       desc: '',
       args: [],
@@ -2220,10 +2600,10 @@ class S {
     );
   }
 
-  /// `please enter one image`
+  /// `please enter product image`
   String get pleaseEnterImage {
     return Intl.message(
-      'please enter one image',
+      'please enter product image',
       name: 'pleaseEnterImage',
       desc: '',
       args: [],
@@ -2310,11 +2690,61 @@ class S {
     );
   }
 
-  /// `product category`
+  /// `choose product category`
   String get productCategory {
     return Intl.message(
-      'product category',
+      'choose product category',
       name: 'productCategory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `choose category`
+  String get productSubCategory {
+    return Intl.message(
+      'choose category',
+      name: 'productSubCategory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Product main category`
+  String get productMainCategory {
+    return Intl.message(
+      'Product main category',
+      name: 'productMainCategory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The cart is cleaned`
+  String get theCartIsCleaned {
+    return Intl.message(
+      'The cart is cleaned',
+      name: 'theCartIsCleaned',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `there is no sale`
+  String get thereIsNoSale {
+    return Intl.message(
+      'there is no sale',
+      name: 'thereIsNoSale',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You have suspended your account from your profile\n`
+  String get youHaveSuspendedYourAccountFromYourProfile {
+    return Intl.message(
+      'You have suspended your account from your profile\n',
+      name: 'youHaveSuspendedYourAccountFromYourProfile',
       desc: '',
       args: [],
     );

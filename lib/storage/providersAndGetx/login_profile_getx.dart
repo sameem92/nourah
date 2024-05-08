@@ -6,10 +6,9 @@ import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:producer_family_app/storage/api/login_profile_controller.dart';
 
 class getProfileGetx extends GetxController {
-  RxMap<String, dynamic> profile = <String, dynamic>{}.obs;
+  RxMap<dynamic, dynamic> profile = <dynamic, dynamic>{}.obs;
   static getProfileGetx get to => Get.find();
   var isLoading = true.obs;
-
   @override
   void onInit() {
     getProfile();
@@ -17,13 +16,12 @@ class getProfileGetx extends GetxController {
     super.onInit();
   }
 
-  Future<void> getProfile({BuildContext? context}) async {
+  Future<void> getProfile({BuildContext? context, bool? isUpdated}) async {
     isLoading(true);
 
     try {
-      var show = await loginAndProfileController().getProfileController(
-        context: context,
-      );
+      var show = await LoginAndProfileController()
+          .getProfileController(context: context, isUpdated: isUpdated);
       if (show != null) {
         profile.value = show;
       }
@@ -32,11 +30,15 @@ class getProfileGetx extends GetxController {
     }
   }
 
+  Future<void> refreshData() async {
+    await getProfile(isUpdated: true);
+  }
+
   Future<void> changeValidity({
     required BuildContext context,
     required String available,
   }) async {
-    bool edit = await loginAndProfileController().changeValidityController(
+    bool edit = await LoginAndProfileController().changeValidityController(
       context,
       language:
           Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
@@ -44,38 +46,91 @@ class getProfileGetx extends GetxController {
     );
 
     if (edit) {
-      getProfile();
+      getProfile(isUpdated: true);
     }
   }
 
   Future<void> updateProfile(
-      {required BuildContext context,
+      {BuildContext? context,
       String? path2,
       String? path1,
-      required String notes,
-      required String ennotes,
-      required String minimum_order,
-      required String name,
-      required String email,
-      required String phone,
-      required Function(bool status) uploadEvent}) async {
-    await loginAndProfileController().updateProfileController(context,
+      bool helpBool = true,
+      String notes = '',
+      String ennotes = '',
+      String minimum_order = '',
+      String name = '',
+      dynamic lat,
+      dynamic lng,
+      String address = '',
+      bool updated = true,
+      String email = '',
+      String phone = '',
+      Function(bool status)? uploadEvent}) async {
+    await LoginAndProfileController().updateProfileController(context,
         path2: path2,
         path1: path1,
         notes: notes,
         ennotes: ennotes,
-        minimum_order: minimum_order,
+        minimumOrder: minimum_order,
         name: name,
+        lat: lat,
+        lng: lng,
+        helpBool: helpBool,
+        address: address,
         email: email,
         phone: phone,
-        language: Localizations.localeOf(context).languageCode == "ar"
-            ? "ar"
-            : "en", uploadEvent: (bool status) {
+        language: context != null
+            ? Localizations.localeOf(context).languageCode == "ar"
+                ? "ar"
+                : "en"
+            : "ar", uploadEvent: (bool status) {
       {
-        return true;
+        // print("profile updated");
       }
-      ;
     });
-    getProfile();
+    if (updated) {
+      getProfile(isUpdated: true);
+    }
+  }
+
+  Future<void> updateLatLan(
+      {BuildContext? context,
+      bool helpBool = true,
+      dynamic lat,
+      dynamic lng,
+      String? address,
+      bool updated = true,
+      Function(bool status)? uploadEvent}) async {
+    await LoginAndProfileController().updateLatLanController(context,
+        address: address,
+        lat: lat,
+        lng: lng,
+        helpBool: helpBool,
+        language: context != null
+            ? Localizations.localeOf(context).languageCode == "ar"
+                ? "ar"
+                : "en"
+            : "ar", uploadEvent: (bool status) {
+      {
+        // print("profile updated");
+      }
+    });
+    // print(updateIt );
+    // if(updateIt){
+    if (updated) {
+      getProfile(isUpdated: true);
+    }
+    //   print(updateIt );
+    // }
+  }
+
+  Future<void> updateNameProfile({
+    required BuildContext context,
+    String name = '',
+  }) async {
+    await LoginAndProfileController().updateNameController(
+      context,
+      name: name,
+    );
   }
 }

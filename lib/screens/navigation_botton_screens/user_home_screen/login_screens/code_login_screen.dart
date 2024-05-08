@@ -1,44 +1,40 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:producer_family_app/components/headers/app_bar_family.dart';
 import 'package:producer_family_app/components/show_helper.dart';
 import 'package:producer_family_app/screens/navigation_botton_screens/user_home_screen/cart_screen.dart';
+import 'package:producer_family_app/screens/public_screens/map_screen.dart';
 import 'package:producer_family_app/storage/api/login_profile_controller.dart';
 import 'package:producer_family_app/storage/shared_preferences_controller.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_button.dart';
 import 'package:producer_family_app/style/style_colors.dart';
-import 'package:producer_family_app/style/style_text.dart';
 import 'package:producer_family_app/style/style_field.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:producer_family_app/style/style_text.dart';
 
 class CodeLoginScreen extends StatefulWidget {
-  String id;
-  int totalPrice;
-  int productId;
-  int productQu;
-  String productName;
-  String productImage;
+  final int userId;
+  final int productQu;
   final String? phone;
-  bool back;
-  bool main;
-  IconData? icon;
-  IconData? iconBack;
+  final bool back;
+  final bool main;
+  final IconData? icon;
+  final IconData? iconBack;
 
-  CodeLoginScreen(
-      {required this.phone,
-      this.id = "",
-      this.back = false,
-      this.main = false,
-      this.icon = null,
-      this.iconBack = Icons.arrow_back,
-      this.productName = "",
-      this.productImage = "",
-      this.totalPrice = 0,
-      this.productId = 0,
-      this.productQu = 0});
+  const CodeLoginScreen({
+    required this.phone,
+    this.userId = 0,
+    this.back = false,
+    this.main = false,
+    this.productQu = 0,
+    this.icon,
+    this.iconBack = Icons.arrow_back,
+  });
 
   @override
   _CodeLoginScreenState createState() => _CodeLoginScreenState();
@@ -59,12 +55,12 @@ class _CodeLoginScreenState extends State<CodeLoginScreen> {
   @override
   void dispose() {
     // TODO: implement dispose
-    super.dispose();
     _codeNumber.dispose();
     timer!.cancel();
 
     startTimer();
     startTimerAgain();
+    super.dispose();
   }
 
   static const maxSeconds = 60;
@@ -72,7 +68,7 @@ class _CodeLoginScreenState extends State<CodeLoginScreen> {
   Timer? timer;
 
   void startTimer() {
-    timer = Timer.periodic(Duration(seconds: 1), (_) {
+    timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) {
         setState(() {
           seconds--;
@@ -83,7 +79,7 @@ class _CodeLoginScreenState extends State<CodeLoginScreen> {
   }
 
   void startTimerAgain() {
-    timer = Timer.periodic(Duration(seconds: 1), (_) {
+    timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) {
         setState(() {
           seconds--;
@@ -96,7 +92,7 @@ class _CodeLoginScreenState extends State<CodeLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWhite(
+      appBar: appBarWhite(
         context,
         back: widget.back,
         main: widget.main,
@@ -120,7 +116,7 @@ class _CodeLoginScreenState extends State<CodeLoginScreen> {
                 Icon(
                   Icons.perm_contact_calendar,
                   size: SizeConfig.scaleHeight(200),
-                  color: kSecondaryColor,
+                  color: kSpecialColor,
                 ),
                 SizedBox(
                   height: SizeConfig.scaleHeight(30),
@@ -136,7 +132,7 @@ class _CodeLoginScreenState extends State<CodeLoginScreen> {
                   title: AppLocalizations.of(context)!.codenumber,
                   controller: _codeNumber,
                   keyboardType: TextInputType.number,
-                  prefixIcon: Icon(Icons.code),
+                  prefixIcon: const Icon(Icons.code),
                 ),
                 SizedBox(
                   height: hSpaceLarge,
@@ -146,15 +142,15 @@ class _CodeLoginScreenState extends State<CodeLoginScreen> {
                   children: [
                     GestureDetector(
                         onTap: () async {
-                          String? firebase_token =
+                          String? firebaseToken =
                               await FirebaseMessaging.instance.getToken();
 
                           if (seconds == 0) {
-                            bool sendAgain = await loginAndProfileController()
+                            bool sendAgain = await LoginAndProfileController()
                                 .userRegisterController(
                               context,
-                              firebase_token: firebase_token!,
-                              phone: "${widget.phone}",
+                              firebaseToken: firebaseToken!,
+                              phone: widget.phone,
                               language: Localizations.localeOf(context)
                                           .languageCode ==
                                       "ar"
@@ -177,11 +173,11 @@ class _CodeLoginScreenState extends State<CodeLoginScreen> {
                         child: StyleText(
                           AppLocalizations.of(context)!
                               .sendTheVerificationCodeAgain,
-                          textColor: seconds == 0 ? kConfirm : kSecondaryColor,
+                          textColor: seconds == 0 ? kConfirm : kSpecialColor,
                         )),
                     StyleText(
-                      "    ( ${seconds}:0 )",
-                      textColor: kSecondaryColor,
+                      "    ( $seconds:0 )",
+                      textColor: kSpecialColor,
                       maxLines: 2,
                     ),
                   ],
@@ -216,7 +212,7 @@ class _CodeLoginScreenState extends State<CodeLoginScreen> {
     if (_codeNumber.text.isNotEmpty) {
       return true;
     }
-    Helper(
+    helper(
         context: context,
         message: AppLocalizations.of(context)!.pleaseEnterCorrectData,
         error: true);
@@ -224,31 +220,38 @@ class _CodeLoginScreenState extends State<CodeLoginScreen> {
   }
 
   Future login() async {
-    String? firebase_token = await FirebaseMessaging.instance.getToken();
+    String? firebaseToken = await FirebaseMessaging.instance.getToken();
 
-    bool status = await loginAndProfileController().activeCodeUserController(
+    bool status = await LoginAndProfileController().activeCodeUserController(
       phone: widget.phone!,
       code: _codeNumber.text,
-      firebase_token: firebase_token!,
+      firebaseToken: firebaseToken!,
       context: context,
       language:
           Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
     );
     if (status) {
+      String fileName5 = "getProfileController.json";
+      var dir5 = await getTemporaryDirectory();
+      File file5 = File("${dir5.path}/$fileName5");
+      if (file5.existsSync()) file5.deleteSync(recursive: true);
+
+      // getProfileGetx controller = Get.put(getProfileGetx());
+
       await SharedPreferencesController().saveLoggedInUser();
-      widget.totalPrice == 0 && widget.productQu == 0
-          ? Navigator.pushNamedAndRemoveUntil(
-              context, "/mainScreen", (Route<dynamic> route) => false)
+      widget.productQu == 0
+          ? Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MapScreen(
+                  user: true,
+                ),
+              ))
           : Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => CartScreen(
-                  totalPrice: widget.totalPrice,
-                  id: widget.id,
-                  productQu: widget.productQu,
-                  productId: widget.productId,
-                  productName: widget.productName,
-                  productImage: widget.productImage,
+                  userId: widget.userId,
                 ),
               ),
             );

@@ -1,8 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:get/get.dart';
 import 'package:producer_family_app/storage/api/home_controller.dart';
 import 'package:producer_family_app/storage/models/home_modal/categories_modal.dart';
 import 'package:producer_family_app/storage/models/home_modal/home_modal.dart';
@@ -10,6 +7,9 @@ import 'package:producer_family_app/storage/models/show_modal/show_family.dart';
 import 'package:producer_family_app/storage/models/show_modal/show_product_modal.dart';
 
 class HomeGetx extends GetxController {
+  RxList<Categories> categories = <Categories>[].obs;
+  RxList<Coupons> coupons = <Coupons>[].obs;
+
   Rx<Data<Products>> specialproducts = Data<Products>().obs;
   Rx<Data<Products>> products = Data<Products>().obs;
   Rx<Data<Families>> specialfamilies = Data<Families>().obs;
@@ -18,7 +18,11 @@ class HomeGetx extends GetxController {
   Rx<Data<Offers>> offers = Data<Offers>().obs;
 
   //for categories and search
+  List<Categories> categoriesList = <Categories>[];
+  List<Coupons> couponsList = <Coupons>[];
+
   List<Products> productsList = <Products>[];
+  // List<Products> productsListNew = <Products>[];
   List<Families> familiesList = <Families>[];
   List<Offers> offersList = <Offers>[];
 
@@ -27,10 +31,16 @@ class HomeGetx extends GetxController {
   String language;
   String lat;
   String lng;
-  String category;
-
-
-  HomeGetx({this.language = '', this.lat = '', this.lng = '',this.category="0"});
+  int category;
+  int page;
+  BuildContext context;
+  HomeGetx(
+      {this.language = '',
+      this.lat = '',
+      this.lng = '',
+      this.category = 0,
+      this.page = 1,
+      required this.context});
 
   @override
   void onInit() {
@@ -38,16 +48,21 @@ class HomeGetx extends GetxController {
     super.onInit();
   }
 
-  Future<void> getHomeData({BuildContext? context,}) async {
+  Future<void> getHomeData({
+    bool? isUpdated,
+  }) async {
     isLoading(true);
     try {
       var response = await HomeController().getHome(
           context: context,
           keyword: '',
-          category: category,
+          category: category.toString(),
           language: language,
+          isUpdated: isUpdated,
           lat: lat,
-          lng: lng);
+          lng: lng,
+          page: page);
+
       if (response != null) {
         specialproducts.value = response.specialproducts;
         products.value = response.products;
@@ -58,36 +73,104 @@ class HomeGetx extends GetxController {
         specialoffers.value = response.specialoffers;
         offers.value = response.offers;
 
+        categories.value = response.categories;
+        coupons.value = response.coupons;
+      }
+      productsList = products.value.data;
+      familiesList = families.value.data;
+      offersList = offers.value.data;
+    } finally {
+      isLoading(false);
+    }
+  }
 
-        productsList = products.value.data;
-        familiesList = families.value.data;
-        offersList = offers.value.data;
+  Future<void> refreshOffer({
+    bool? isUpdated,
+  }) async {
+    isLoading(true);
+    try {
+      var response = await HomeController().getHome(
+          context: context,
+          keyword: '',
+          category: category.toString(),
+          language: language,
+          isUpdated: isUpdated,
+          lat: lat,
+          lng: lng);
+      if (response != null) {
+        offers.value = response.offers;
       }
     } finally {
       isLoading(false);
     }
   }
 
-  void filterProductsByName({String name = '', BuildContext? context}) {
+  Future<void> refreshData() async {
+    await getHomeData(isUpdated: true);
+  }
+
+  void filterProductsByName(
+      {String name = '', required BuildContext context, int categoryId = 0}) {
     if (name.isNotEmpty) {
-      Localizations.localeOf(context!).languageCode == "ar"
-          ? products.value.data = productsList
-              .where((element) => element.arname.contains(name))
-              .toList()
-          : products.value.data = productsList
-              .where((element) => element.enname.contains(name))
-              .toList();
-
+      // products / products / products / products / products / products / products / products /
       Localizations.localeOf(context).languageCode == "ar"
-          ? offers.value.data = offersList
-              .where((element) => element.arname.contains(name))
-              .toList()
-          : offers.value.data = offersList
-              .where((element) => element.enname.contains(name))
-              .toList();
+          //ar
 
-      families.value.data =
-          familiesList.where((element) => element.name.contains(name)).toList();
+          ? products.value.data = categoryId != 0
+              ? productsList
+                  .where((element) => element.arname.contains(name))
+                  .toList()
+                  .where((element) => element.brand == categoryId)
+                  .toList()
+              : productsList
+                  .where((element) => element.arname.contains(name))
+                  .toList()
+          //en
+          : products.value.data = categoryId != 0
+              ? productsList
+                  .where((element) => element.enname.contains(name))
+                  .toList()
+                  .where((element) => element.brand == categoryId)
+                  .toList()
+              : productsList
+                  .where((element) => element.enname.contains(name))
+                  .toList();
+
+      // offers / offers / offers / offers / offers / offers / offers / offers / offers / offers /
+      Localizations.localeOf(context).languageCode == "ar"
+          //ar
+          ? offers.value.data = categoryId != 0
+              ? offersList
+                  .where((element) => element.arname.contains(name))
+                  .toList()
+                  .where((element) => element.brand == categoryId)
+                  .toList()
+              : offersList
+                  .where((element) => element.arname.contains(name))
+                  .toList()
+
+          //en
+          : offers.value.data = categoryId != 0
+              ? offersList
+                  .where((element) => element.enname.contains(name))
+                  .toList()
+                  .where((element) => element.brand == categoryId)
+                  .toList()
+              : offersList
+                  .where((element) => element.enname.contains(name))
+                  .toList();
+
+// families /families /families /families /families /families /families /families /families /families /families /families /families /
+      families.value.data = categoryId != 0
+          ? familiesList
+              .where((element) => element.name.contains(name))
+              .toList()
+              .where((element) => element.categories[0].id == categoryId)
+              .toList()
+              .toList()
+          : familiesList
+              .where((element) => element.name.contains(name))
+              .toList();
     } else {
       products.value.data = productsList;
       offers.value.data = offersList;
@@ -98,27 +181,56 @@ class HomeGetx extends GetxController {
     specialoffers.refresh();
   }
 
-  void filterProductsByCategory({int categoryId = 0,String name = ''}) {
-    if (categoryId != 0 ) {
-      products.value.data = productsList.where((element) => element.category == categoryId).toList();
-      offers.value.data = offersList.where((element) => element.category == categoryId).toList();
-      // families.value.data = familiesList.where((element) => element.categories![categoryId].arname.contains(name)).toList();
+  void filterProductsByCategory({required int categoryId, String name = ''}) {
+    if (categoryId != 0) {
+      // products / products / products / products / products / products / products / products /
+      products.value.data = name.isNotEmpty
+          ? productsList
+              .where((element) => element.brand == categoryId)
+              .toList()
+              .where((element) =>
+                  Localizations.localeOf(context).languageCode == "ar"
+                      ? element.arname.contains(name)
+                      : element.enname.contains(name))
+              .toList()
+          : productsList
+              .where((element) => element.brand == categoryId)
+              .toList();
+      // offers / offers / offers / offers / offers / offers / offers / offers / offers / offers /
+      offers.value.data = name.isNotEmpty
+          ? offersList
+              .where((element) => element.brand == categoryId)
+              .toList()
+              .where((element) =>
+                  Localizations.localeOf(context).languageCode == "ar"
+                      ? element.arname.contains(name)
+                      : element.enname.contains(name))
+              .toList()
+          : offersList.where((element) => element.brand == categoryId).toList();
+      // families / families / families / families / families / families / families / families /
+
+      families.value.data = name.isNotEmpty
+          ? familiesList
+              .where((element) => element.categories[0].id == categoryId)
+              .toList()
+              .where((element) => element.name.contains(name))
+              .toList()
+          : familiesList.where((element) {
+              return element.categories[0].id == categoryId;
+            }).toList();
     } else {
       products.value.data = productsList;
       offers.value.data = offersList;
       families.value.data = familiesList;
     }
-
-
-    products.refresh();
-
-    families.refresh();
-    offers.refresh();
+    specialproducts.refresh();
+    specialfamilies.refresh();
+    specialoffers.refresh();
   }
 }
 
 //*************************************************************************
-
+//
 class CategoriesGetX extends GetxController {
   var isLoading = true.obs;
 
@@ -139,7 +251,6 @@ class CategoriesGetX extends GetxController {
           await HomeController().getCategoriesController(context: context);
       if (show != null) {
         categories.value = show;
-        update();
       }
     } finally {
       isLoading(false);
@@ -149,14 +260,14 @@ class CategoriesGetX extends GetxController {
 
 //*************************************************************************
 
-class getShowProductGetX extends GetxController {
-  getShowProductGetX({this.id = "", this.language = ""});
-  String id;
+class GetShowProductGetX extends GetxController {
+  GetShowProductGetX({required this.id, this.language = ""});
+  int id;
   String language;
   var isLoading = true.obs;
-  RxMap<String, dynamic> Showproduct = <String, dynamic>{}.obs;
+  RxMap<String, dynamic> showProduct = <String, dynamic>{}.obs;
 
-  static getShowProductGetX get to => Get.find();
+  static GetShowProductGetX get to => Get.find();
   @override
   void onInit() {
     getvalues();
@@ -168,10 +279,10 @@ class getShowProductGetX extends GetxController {
   }) async {
     isLoading(true);
     try {
-      var show = await HomeController().ShowProductController(
-          context: context, product_id: id, language: language);
+      var show = await HomeController().showProductController(
+          context: context, productId: id, language: language);
       if (show != null) {
-        Showproduct.value = show;
+        showProduct.value = show;
       }
     } finally {
       isLoading(false);
@@ -180,62 +291,83 @@ class getShowProductGetX extends GetxController {
 }
 
 //*************************************************************************
-class getShowFamilyGetX extends GetxController {
+class GetShowFamilyGetX extends GetxController {
   RxList<Familycategories> familycategories = <Familycategories>[].obs;
-  Rx<DataFamily<ProductsFamily>> specialproducts = DataFamily<ProductsFamily>().obs;
+  Rx<DataFamily<ProductsFamily>> specialproducts =
+      DataFamily<ProductsFamily>().obs;
   Rx<DataFamily<ProductsFamily>> products = DataFamily<ProductsFamily>().obs;
 
-  List<Familycategories> Familycategorieslist = <Familycategories>[];
+  List<Familycategories> familyCategoriesList = <Familycategories>[];
   List<ProductsFamily> productsList = <ProductsFamily>[];
 
-  getShowFamilyGetX({this.id = "", this.language = "",this.category="0"});
-  String id;
+  GetShowFamilyGetX(
+      {required this.id,
+      this.language = "",
+      this.category = "0",
+      this.lat = '',
+      this.lng = ''});
+  int id;
   String language;
   String category;
-  bool familyMap=false;
+  String lat;
+  String lng;
   var isLoading = true.obs;
-  static getShowFamilyGetX get to => Get.find();
+  static GetShowFamilyGetX get to => Get.find();
   @override
   void onInit() {
     getShowFamily();
     super.onInit();
   }
+
   Future<void> getShowFamily({
     BuildContext? context,
   }) async {
     isLoading(true);
     try {
-      var response= await HomeController()
-          .ShowFamilyController(context: context, id: id, language: language,category:category );
-      if (response != null ) {
-          familycategories.value = response.familycategories;
-          specialproducts.value = response.specialproducts;
-          products.value = response.products;
-          productsList = products.value.data;
+      var response = await HomeController().showFamilyController(
+        context: context,
+        id: id,
+        language: language,
+        category: category,
+        lng: lng,
+        lat: lat,
+      );
+      if (response != null) {
+        familycategories.value = response.familycategories;
+        specialproducts.value = response.specialproducts;
+        products.value = response.products;
+        productsList = products.value.data;
       }
     } finally {
       isLoading(false);
     }
   }
+
   void filterProductsFamilyByCategory({int categoryId = 0}) {
     if (categoryId != 0) {
-      products.value.data = productsList.where((element) => element.category == categoryId).toList();
-       } else {
+      products.value.data = productsList
+          .where((element) => element.category == categoryId)
+          .toList();
+    } else {
       products.value.data = productsList;
-     }
+    }
     specialproducts.refresh();
     products.refresh();
   }
 }
+
 //*************************************************************************
-class getShowFamilyGetXMap extends GetxController {
-  getShowFamilyGetXMap({this.id = "",this.language=''});
-  String id;
+class GetShowFamilyGetXMap extends GetxController {
+  GetShowFamilyGetXMap(
+      {required this.id, this.language = '', this.lat = '', this.lng = ''});
+  int id;
   String language;
+  String lat;
+  String lng;
   var isLoading = true.obs;
 
   RxMap<String, dynamic> showfamily = <String, dynamic>{}.obs;
-  static getShowFamilyGetXMap get to => Get.find();
+  static GetShowFamilyGetXMap get to => Get.find();
   @override
   void onInit() {
     getvalues();
@@ -247,8 +379,13 @@ class getShowFamilyGetXMap extends GetxController {
   }) async {
     isLoading(true);
     try {
-      var show = await HomeController()
-          .ShowFamilyControllerMap(context: context, id: id,language: language);
+      var show = await HomeController().showFamilyControllerMap(
+        context: context,
+        id: id,
+        language: language,
+        lng: lng,
+        lat: lat,
+      );
       if (show != null) {
         showfamily.value = show;
       }
@@ -257,13 +394,14 @@ class getShowFamilyGetXMap extends GetxController {
     }
   }
 }
+
 //*************************************************************************
-class getShowImageProductGetX extends GetxController {
-  getShowImageProductGetX({this.id = ""});
-  String id;
+class GetShowImageProductGetX extends GetxController {
+  GetShowImageProductGetX({required this.id});
+  int id;
   var isLoading = true.obs;
-  RxList<ImagesProduct> ShowImageproduct = <ImagesProduct>[].obs;
-  static getShowImageProductGetX get to => Get.find();
+  RxList<ImagesProduct> showImageproduct = <ImagesProduct>[].obs;
+  static GetShowImageProductGetX get to => Get.find();
   @override
   void onInit() {
     getvalues();
@@ -274,9 +412,9 @@ class getShowImageProductGetX extends GetxController {
     isLoading(true);
     try {
       var show = await HomeController()
-          .ShowImagesProductController(context: context, product_id: id);
+          .showImagesProductController(context: context, productId: id);
       if (show != null) {
-        ShowImageproduct.value = show;
+        showImageproduct.value = show;
       }
     } finally {
       isLoading(false);

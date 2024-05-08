@@ -1,368 +1,442 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_getx_widget.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:producer_family_app/components/headers/app_bar_family.dart';
 import 'package:producer_family_app/components/containers/container_app.dart';
-import 'package:producer_family_app/screens/public_screens/reporting.dart';
+import 'package:producer_family_app/components/headers/app_bar_family.dart';
+import 'package:producer_family_app/screens/public_screens/chat.dart';
+import 'package:producer_family_app/screens/public_screens/chat_damily_driver.dart';
+import 'package:producer_family_app/screens/public_screens/splash.dart';
+import 'package:producer_family_app/storage/notificatons.dart';
+import 'package:producer_family_app/storage/providersAndGetx/login_profile_getx.dart';
 import 'package:producer_family_app/storage/providersAndGetx/order_getx.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_button.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_text.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../public_screens/reporting.dart';
 
 class FollowOrderDriver extends StatefulWidget {
-  int index;
+  final int index;
 
-  FollowOrderDriver({this.index = 0});
+  const FollowOrderDriver({required this.index});
   @override
   _FollowOrderDriverState createState() => _FollowOrderDriverState();
 }
 
 class _FollowOrderDriverState extends State<FollowOrderDriver> {
-  late GoogleMapController _googleMapControllerDriver;
-  late GoogleMapController _googleMapControllerFamily;
-  late GoogleMapController _googleMapControllerUser;
-  StreamSubscription? _locationSubscriptionUser;
-  StreamSubscription? _locationSubscriptionFamily;
-  StreamSubscription? _locationSubscriptionDriver;
-  BitmapDescriptor ? iconUser;
-   // BitmapDescriptor?  iconDriver;
-   BitmapDescriptor?  iconFamily;
-  Location _locationTracker = Location();
+  final _googleMapController = Completer();
+  getProfileGetx controllerProfile = Get.put(getProfileGetx());
+  Location locationTraker = Location(); //
+  // StreamSubscription? _locationSubscriptionUser;
+  // StreamSubscription? _locationSubscriptionFamily;
+  StreamSubscription? _locationSubscription;
+  BitmapDescriptor? iconUser;
+  BitmapDescriptor? iconFamily;
+  // Location _locationTracker = Location();
   // Marker? markerUser;
-  Marker? markerDriver;
-    Set<Marker> _markers = {};
-
-  // Marker? markerFamily;
-bool Driver=true;
-//     Circle? circleUser;
-//     Circle? circleFamily;
-    Circle? circleDriver;
+  // Marker? markerDriver;
+  // Set<Marker> _markers = {};
+  // Circle? circleDriver;
+  int index = 0;
+  getOrderDriverGetX controller = Get.put(getOrderDriverGetX());
   @override
-void initState() {
-    // TODO: implement initState
-    super.initState();
+  void initState() {
+    setState(() {
+      index = widget.index;
+      // print(index);
+    });
+
     _getMarker();
+    super.initState();
+    managenotificationAction(context);
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    if (_locationSubscriptionUser != null) {
-      _locationSubscriptionUser!.cancel();
-    }
-    if (_locationSubscriptionFamily != null) {
-      _locationSubscriptionFamily!.cancel();
-    }
-    if (_locationSubscriptionDriver != null) {
-      _locationSubscriptionDriver!.cancel();
-    }
+    _locationSubscription!.isPaused;
+
     super.dispose();
   }
-  getOrderDriverGetX controller = Get.put(getOrderDriverGetX());
 
   @override
   Widget build(BuildContext context) {
-    return GetX<getOrderDriverGetX>(
+    // LatLng currentLocation = LatLng(
+    //     controller.orders[index].shippingLat.toDouble(),
+    //     controller.orders[index].shippingLng.toDouble());
+    final Set<Marker> markers = {
+      if (iconUser != null)
+        Marker(
+          markerId: const MarkerId("user"),
+          position: LatLng(
+            controller.orders[index].clientlat.toDouble(),
+            controller.orders[index].clientlng.toDouble(),
+          ),
+          draggable: false,
+          onTap: () {
+            // print(controller.orders[index].clientphone);
+            customLaunch(controller.orders[index].clientphone);
+          },
+          anchor: const Offset(0.5, .2),
+          flat: true,
+          icon: iconUser!,
+          infoWindow: InfoWindow(
+            title: controller.orders[index].clientname,
+          ),
+        ),
+      if (iconFamily != null)
+        Marker(
+          markerId: const MarkerId("family"),
+          infoWindow: InfoWindow(
+            title: controller.orders[index].familyname,
+          ),
+          position: LatLng(
+            controller.orders[index].familylat.toDouble(),
+            controller.orders[index].familylng.toDouble(),
+          ),
+          draggable: false,
+          anchor: const Offset(0.4, .3),
+          onTap: () {
+            // print(controller.orders[index].familyphone);
+
+            customLaunch(controller.orders[index].familyphone);
+          },
+          flat: true,
+          icon: iconFamily!,
+        ),
+    };
+
+    return Scaffold(
+      appBar: appBarWhite(
+        context,
+        title: AppLocalizations.of(context)!.followorder,
+        onPressed: () {},
+      ),
+      body: GetX<getOrderDriverGetX>(
         init: getOrderDriverGetX(),
         builder: (getOrderDriverGetX controller) {
-
-          Set<Marker> _markers = {
-            if(iconUser !=null)
-
-              Marker(
-                  markerId: MarkerId("user"),
-                  position: LatLng(controller.orders[widget.index].clientlat.toDouble(),
-                      controller.orders[widget.index].clientlng.toDouble()),
-                  draggable: true,
-
-                  icon: iconUser!,
-                  infoWindow: InfoWindow(
-                    title: controller.orders[widget.index].clientname,
-                  )),
-
-            if(iconFamily !=null)
-              Marker(
-                markerId: MarkerId("family"),
-                infoWindow: InfoWindow(
-                  title: controller.orders[widget.index].familyname,
-                ),
-                position: LatLng(controller.orders[widget.index].familylat.toDouble(),
-                    controller.orders[widget.index].familylng.toDouble()),
-                draggable: true,
-                icon: iconFamily!,
-              ),
-          };
-
-
-          return Scaffold(
-            appBar: AppBarWhite(context,
-                title: AppLocalizations.of(context)!.followorder,
-                icon: Icons.call,
-                onPressed: () {}),
-            body:controller.isLoading.value
-                ? Center(
-              child: indicator_nourah_loading()
-            )
-                :  Stack(
-              children: [
-                GoogleMap(
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  mapType: MapType.hybrid,
-                  onMapCreated: (controller) async {
-                      _googleMapControllerUser = controller;
-                      _googleMapControllerDriver = controller;
-                      _googleMapControllerFamily = controller;
+          return controller.isLoading.value
+              ? Center(child: indicatorNourahLoading())
+              : Stack(
+                  children: [
+                    GoogleMap(
+                      myLocationButtonEnabled: false,
+                      zoomControlsEnabled: false,
+                      onMapCreated: (GoogleMapController controller) async {
+                        _googleMapController.complete(controller);
                       },
-
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(controller.orders[widget.index].shippingLng.toDouble()??0,
-                        controller.orders[widget.index].shippingLng.toDouble()??0),
-                    zoom: 14.0,
-                  ),
-                  // markers: Set.of((markerUser != null &&markerDriver != null &&markerFamily != null) ? [markerUser!,markerDriver!,markerFamily!]:[] ),
-                  //         circles: Set.of((circleUser != null &&circleDriver != null &&circleFamily != null) ?  [circleUser!,circleFamily!,circleDriver!,]:[] ),
-                  markers: Set.of((markerDriver != null ) ? [markerDriver!,_markers.last,_markers.first]:[] ),
-                  circles: Set.of((circleDriver != null ) ?  [circleDriver!]:[] ),
-                  // markers: _markers.toSet(),
-
-                ),
-                Positioned(
-                  bottom: SizeConfig.scaleHeight(30),
-                  right: SizeConfig.scaleWidth(10),
-                  left: SizeConfig.scaleWidth(10),
-                  child: ContainerApp(
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: hSpace,
+                      initialCameraPosition: const CameraPosition(
+                        target: LatLng(
+                          24.71768642425082,
+                          46.666466158159736,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        zoom: 9.0,
+                      ),
+                      onCameraMove: (CameraPosition newPos) {
+                        // currentLocation = newPos.target;
+                      },
+                      // markers: Set.of((markerUser != null &&markerDriver != null &&markerFamily != null) ? [markerUser!,markerDriver!,markerFamily!]:[] ),
+                      //         circles: Set.of((circleUser != null &&circleDriver != null &&circleFamily != null) ?  [circleUser!,circleFamily!,circleDriver!,]:[] ),
+                      markers: markers.toSet(),
+                      // markers: Set.of((markerDriver != null ) ? [markerDriver!,_markers.last,_markers.first]:[] ),
+                      // circles: Set.of((circleDriver != null ) ?  [circleDriver!]:[] ),
+                      // markers: _markers.toSet(),
+                    ),
+                    Dot(
+                      radius: SizeConfig.scaleTextFont(12),
+                      color: kSpecialColor,
+                    ),
+                    Positioned(
+                      bottom: SizeConfig.scaleHeight(30),
+                      right: SizeConfig.scaleWidth(10),
+                      left: SizeConfig.scaleWidth(10),
+                      child: ContainerApp(
+                        child: Column(
                           children: [
-                            Expanded(
-                              child: StyleText(
-                                  AppLocalizations.of(context)!.deliveryTi),
+                            SizedBox(
+                              height: hSpace,
                             ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: hSpace,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: StyleText(
-                                "${controller.orders[widget.index].deliveryDuration}  ${controller.orders[widget.index].deliveryDurationUnit == "h" ? AppLocalizations.of(context)!.hour : "${controller.orders[widget.index].deliveryDurationUnit}" == "m" ? AppLocalizations.of(context)!.minute : AppLocalizations.of(context)!.day} ",
-                                textColor: kSpecialColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: hSpace,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(width: wSpace,),
-
-                            Expanded(
-                              flex: 4,
-                              child: StyleButton(
-                                AppLocalizations.of(context)!.chatWithCustomer,
-                                onPressed: () {
-                                  Navigator.pushNamed(context, "/chat");
-                                },
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                const Expanded(child: SizedBox()),
+                                Expanded(
+                                  child: StyleText(
+                                    AppLocalizations.of(context)!.deliveryTi,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: StyleText(
+                                    "${controller.orders[index].deliveryDuration}  ${controller.orders[index].deliveryDurationUnit == "h" ? AppLocalizations.of(context)!.hour : controller.orders[index].deliveryDurationUnit == "m" ? AppLocalizations.of(context)!.minute : AppLocalizations.of(context)!.day} ",
+                                    textColor: kSpecialColor,
+                                  ),
+                                ),
+                                const Expanded(child: SizedBox()),
+                              ],
                             ),
                             SizedBox(
-                              width: wSpace,
+                              height: hSpace,
                             ),
-                            SizedBox(
-                              width: wSpace,
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: StyleButton(
-                                  AppLocalizations.of(context)!.reporting,
-                                  sideColor: kRefuse,
-                                  backgroundColor: kRefuse,
-                                  onPressed: () async {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return Reporting(
-                                        family: true,
-                                        user: true,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: wSpaceSmall,
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: StyleButton(
+                                    AppLocalizations.of(context)!
+                                        .chatWithCustomer,
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Chat(
+                                            orderNo: controller
+                                                .orders[index].orderNo,
+                                            driverId: controller
+                                                .orders[index].deliveryId,
+                                            userId:
+                                                controller.orders[index].userId,
+                                            phone: controller
+                                                .orders[index].clientphone,
+                                          ),
+                                        ),
                                       );
                                     },
                                   ),
-                                );
-                              }),
+                                ),
+                                SizedBox(
+                                  width: wSpaceSmall,
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: StyleButton(
+                                    AppLocalizations.of(context)!
+                                        .chatWithFamily,
+                                    sideColor: kSpecialColor,
+                                    backgroundColor: kSpecialColor,
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ChatFamily(
+                                            orderNo: controller
+                                                .orders[index].orderNo,
+                                            driverId: controller
+                                                .orders[index].deliveryId,
+                                            familyId: controller
+                                                .orders[index].familyId,
+                                            phone: controller
+                                                .orders[index].familyphone,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: wSpaceSmall,
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: StyleButton(
+                                    AppLocalizations.of(context)!.reporting,
+                                    sideColor: kRefuse,
+                                    backgroundColor: kRefuse,
+                                    onPressed: () async {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return Reporting(
+                                              family: true,
+                                              user: true,
+                                              id: controller.orders[index].id,
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: wSpaceSmall,
+                                ),
+                              ],
                             ),
-                            SizedBox(width: wSpace,)
+                            SizedBox(
+                              height: hSpace,
+                            ),
                           ],
                         ),
-                        SizedBox(
-                          height: hSpace,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            floatingActionButton: Container(
-              height: SizeConfig.scaleHeight(800),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                    FloatingActionButton(
-                      onPressed: () async {
-                        setState(() {
-                          Driver=false;
-                        });
-                        // getCurrentLocationUser();
-                        await _googleMapControllerUser.animateCamera(
-                          CameraUpdate.newCameraPosition(CameraPosition(
-                              target: LatLng(
-                                  controller.orders[widget.index].clientlat.toDouble(),
-                                  controller.orders[widget.index].clientlng.toDouble()),
-                              zoom: 13)));
-//
-                      },
-                      child: Icon(
-                        Icons.gps_fixed,
-                        color: Colors.white,
                       ),
-                      backgroundColor: kSpecialColor,
                     ),
-                  SizedBox(
-                    height: hSpaceLarge,
-                  ),
-
-                    FloatingActionButton(
-                      onPressed: () async {
-                        setState(() {
-                          Driver=true;
-                        });
-                        getCurrentLocationDriver();
-
-                      },
-                      child: Icon(
-                        Icons.delivery_dining,
-                        color: Colors.white,
-                      ),
-                      backgroundColor: kSpecialColor,
-                    ),
-                  SizedBox(
-                    height: hSpaceLarge,
-                  ),
-
-                    FloatingActionButton(
-                      onPressed: () async {
-                       setState(() {
-                         Driver=false;
-                       });
-                        // getCurrentLocationFamily();
-                        await _googleMapControllerFamily.animateCamera(
-                          CameraUpdate.newCameraPosition(CameraPosition(
-                              target: LatLng(
-                                  controller.orders[widget.index].familylat.toDouble(),
-                                  controller.orders[widget.index].familylng.toDouble()),
-                              zoom: 13)));
-//                     },
-                      },
-                      child: Icon(
-                        Icons.family_restroom,
-                        color: Colors.white,
-                      ),
-                      backgroundColor: kSpecialColor,
-                    ),
-                ],
+                  ],
+                );
+        },
+      ),
+      floatingActionButton: SizedBox(
+        height: SizeConfig.scaleHeight(800),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FloatingActionButton(
+              heroTag: "btn1",
+              child: const Icon(
+                Icons.gps_fixed,
+                color: Colors.white,
               ),
+              backgroundColor: kSpecialColor,
+              onPressed: () async {
+                // var location = await locationTraker.getLocation();
+                // LocationData currentLocation = await LocationService().getLocation();
+
+                if (_locationSubscription != null) {
+                  _locationSubscription!.cancel();
+                }
+                _locationSubscription = locationTraker.onLocationChanged
+                    .listen((newLocalDataDriver) async {
+                  _animateCamera(
+                    LatLng(
+                      newLocalDataDriver.latitude!.toDouble(),
+                      newLocalDataDriver.longitude!.toDouble(),
+                    ),
+                  );
+                });
+
+                // _animateCamera(
+                //   LatLng(currentLocation.latitude!, currentLocation.longitude!),
+                // );
+                // List<Placemark> placemarks = await placemarkFromCoordinates(
+                //     currentLocation.latitude!.toDouble(), currentLocation.longitude!.toDouble());
+                // print("longitude  ${currentLocation.longitude}");
+                // print("latitude  ${currentLocation.latitude}");
+                // print("${placemarks[0].street!} ${placemarks[0].subLocality!}");
+              },
             ),
-          );
-        });
+            SizedBox(
+              height: hSpaceLarge,
+            ),
+            FloatingActionButton(
+              heroTag: "btn2",
+              child: const Icon(
+                Icons.person,
+                color: Colors.white,
+              ),
+              backgroundColor: kSpecialColor,
+              onPressed: () async {
+                _animateCamera(
+                  LatLng(
+                    controller.orders[index].clientlat.toDouble(),
+                    controller.orders[index].clientlng.toDouble(),
+                  ),
+                );
+                // print("clientlat ${controller.orders[index].clientlat}");
+                // print("clientlng ${controller.orders[index].clientlng}");
+              },
+            ),
+            SizedBox(
+              height: hSpaceLarge,
+            ),
+            FloatingActionButton(
+              heroTag: "btn3",
+              child: const Icon(
+                Icons.family_restroom,
+                color: Colors.white,
+              ),
+              backgroundColor: kSpecialColor,
+              onPressed: () async {
+                _animateCamera(
+                  LatLng(
+                    controller.orders[index].familylat.toDouble(),
+                    controller.orders[index].familylng.toDouble(),
+                  ),
+                );
+                // print("familylat ${controller.orders[index].familylat}");
+                // print("familylng ${controller.orders[index].familylng}");
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  void getCurrentLocationDriver() async {
-    try {
+  // void getCurrentLocationDriver() async {
+  //   try {
+  //
+  //     Uint8List imageData = await getMarkerDriver();
+  //     var locationDriver = await _locationTracker.getLocation();
+  //
+  //     // updateMarkerDriver(locationDriver, imageData);
+  //
+  //     if (_locationSubscriptionDriver != null) {
+  //       _locationSubscriptionDriver!.cancel();
+  //     }
+  //
+  //
+  //     _locationSubscriptionDriver = _locationTracker.onLocationChanged.listen((newLocalDataDriver) {
+  //       if (_googleMapControllerDriver != null&&Driver==true) {
+  //         _googleMapControllerDriver.animateCamera(CameraUpdate.newCameraPosition(new CameraPosition(
+  //             bearing: 190,
+  //             target: LatLng(newLocalDataDriver.latitude!, newLocalDataDriver.longitude!),
+  //             tilt: 0,
+  //             zoom: 18.00)));
+  //         // updateMarkerDriver(newLocalDataDriver, imageData);
+  //       }
+  //     });
+  //
+  //   } on PlatformException catch (e) {
+  //     if (e.code == 'PERMISSION_DENIED') {
+  //       debugPrint("Permission Denied");
+  //     }
+  //   }
+  //
+  //
+  // }
 
-      Uint8List imageData = await getMarkerDriver();
-      var locationDriver = await _locationTracker.getLocation();
+  // Future<Uint8List> getMarkerDriver() async {
+  //   ByteData byteData = await DefaultAssetBundle.of(context).load('assets/images/driverIcon.png');
+  //   return byteData.buffer.asUint8List();
+  // }
 
-      updateMarkerDriver(locationDriver, imageData);
-
-      if (_locationSubscriptionDriver != null) {
-        _locationSubscriptionDriver!.cancel();
-      }
-
-
-      _locationSubscriptionDriver = _locationTracker.onLocationChanged.listen((newLocalDataDriver) {
-        if (_googleMapControllerDriver != null&&Driver==true) {
-          _googleMapControllerDriver.animateCamera(CameraUpdate.newCameraPosition(new CameraPosition(
-              bearing: 190,
-              target: LatLng(newLocalDataDriver.latitude!, newLocalDataDriver.longitude!),
-              tilt: 0,
-              zoom: 18.00)));
-          updateMarkerDriver(newLocalDataDriver, imageData);
-        }
-      });
-
-    } on PlatformException catch (e) {
-      if (e.code == 'PERMISSION_DENIED') {
-        debugPrint("Permission Denied");
-      }
-    }
-
-
-  }
-
-  Future<Uint8List> getMarkerDriver() async {
-    ByteData byteData = await DefaultAssetBundle.of(context).load('assets/images/driverIcon.png');
-    return byteData.buffer.asUint8List();
-  }
-
-  void updateMarkerDriver(LocationData newLocalData, Uint8List imageData) {
-    LatLng latlng = LatLng(newLocalData.latitude!, newLocalData.longitude!);
-    this.setState(() {
-      markerDriver = Marker(
-          markerId: MarkerId("${controller.orders[widget.index].deliveryId}"),
-          position: latlng,
-          rotation: newLocalData.heading!,
-          draggable: true,
-          zIndex: 2,
-          flat: true,
-          infoWindow: InfoWindow(
-            title: AppLocalizations.of(context)!.driver,
-          ),
-          anchor: Offset(0.5, 0.5),
-          icon: BitmapDescriptor.fromBytes(imageData));
-      circleDriver = Circle(
-          circleId: CircleId("driverCircle"),
-          radius: newLocalData.accuracy!,
-          zIndex: 1,
-          strokeColor: kSpecialColor,
-          center: latlng,
-          strokeWidth: 3,
-          fillColor: Colors.transparent.withOpacity(.5));
-
-    });
-  }
+  // void updateMarkerDriver(LocationData newLocalData, Uint8List imageData) {
+  //   LatLng latlng = LatLng(newLocalData.latitude!, newLocalData.longitude!);
+  //   this.setState(() {
+  //     markerDriver = Marker(
+  //         markerId: MarkerId("${controller.orders[index].deliveryId}"),
+  //         position: latlng,
+  //         rotation: newLocalData.heading!,
+  //         draggable: true,
+  //         zIndex: 2,
+  //         flat: true,
+  //         infoWindow: InfoWindow(
+  //           title: AppLocalizations.of(context)!.driver,
+  //         ),
+  //         anchor: Offset(0.5, 0.5),
+  //         icon: BitmapDescriptor.fromBytes(imageData));
+  //     circleDriver = Circle(
+  //         circleId: CircleId("driverCircle"),
+  //         radius: newLocalData.accuracy!,
+  //         zIndex: 1,
+  //         strokeColor: kSpecialColor,
+  //         center: latlng,
+  //         strokeWidth: 3,
+  //         fillColor: Colors.transparent.withOpacity(.5));
+  //
+  //   });
+  // }
 
   //••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
 //   void getCurrentLocationFamily() async {
@@ -407,7 +481,7 @@ void initState() {
 //     LatLng latlng = LatLng(newLocalData.latitude!, newLocalData.longitude!);
 //     this.setState(() {
 //       markerFamily = Marker(
-//           markerId: MarkerId("${controller.orders[widget.index].familyId}"),
+//           markerId: MarkerId("${controller.orders[index].familyId}"),
 //           position: latlng,
 //           rotation: newLocalData.heading!,
 //           draggable: false,
@@ -472,7 +546,7 @@ void initState() {
 //     LatLng latlng = LatLng(newLocalData.latitude!, newLocalData.longitude!);
 //     this.setState(() {
 //       markerUser = Marker(
-//           markerId: MarkerId("${controller.orders[widget.index].userId}"),
+//           markerId: MarkerId("${controller.orders[index].userId}"),
 //           position: latlng,
 //           rotation: newLocalData.heading!,
 //           draggable: false,
@@ -495,20 +569,54 @@ void initState() {
 //     });
 //   }
 
-
-
-  void _getMarker() async {
-    // if(iconUser!=null)
+  Future<void> _getMarker() async {
     iconUser = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(), 'assets/images/userIcon.png');
-
-    // if(iconFamily!=null)
+      const ImageConfiguration(),
+      'assets/images/userIcon.png',
+    );
 
     iconFamily = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(), 'assets/images/familyIcon.png');
-
+      const ImageConfiguration(),
+      'assets/images/familyIcon.png',
+    );
   }
 
+  // Future updateProfile({
+  //   required String address,
+  //   required dynamic latitude,
+  //   required dynamic longitude,
+  //   required String name,
+  //   required String email,
+  //   required String phone,
+  // }) async {
+  //   await controller.updateProfile(
+  //     name: name,
+  //     email: email,
+  //     address: address,
+  //     lat: latitude,
+  //     lng: longitude,
+  //     phone: phone,
+  //     uploadEvent: (bool status) {
+  //       if (status) {}
+  //     },
+  //   );
+  //
+  // }
 
+  Future<void> _animateCamera(LatLng currentLocation) async {
+    final GoogleMapController controller = await _googleMapController.future;
+    final CameraPosition cameraPosition = CameraPosition(
+      target: currentLocation,
+      zoom: 18.00,
+    );
+    controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+  }
 
+  Future<void> customLaunch(command) async {
+    if (await canLaunchUrl(Uri.parse(command))) {
+      await launchUrl(Uri.parse(command));
+    } else {
+      // print(' could not launch $command');
+    }
+  }
 }

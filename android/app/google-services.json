@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:54010591596:android:08a1fde07c9cf5d086db49",
+        "mobilesdk_app_id": "1:54010591596:android:f3bd5c615ea0ca3f86db49",
         "android_client_info": {
           "package_name": "com.nourah.producer_family_app"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "54010591596-as8j12sj27adt093i93t5tsjsl5f8uu8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nourah.producer_family_app",
+            "certificate_hash": "310932cf80a0e75b7e0bd3181e8259448ecf9f6d"
+          }
+        },
         {
           "client_id": "54010591596-b5di4o2h697pn3ql5sitn62i5vs5cvoi.apps.googleusercontent.com",
           "client_type": 3
@@ -31,10 +39,10 @@
               "client_type": 3
             },
             {
-              "client_id": "54010591596-llesd2j6r8g5io7m89dpr710ga67jni2.apps.googleusercontent.com",
+              "client_id": "54010591596-cp4e22632hkjhdsf2t9vdm759fga0p4j.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.producerFamilyApp"
+                "bundle_id": "com.nourah.producer-family-app"
               }
             }
           ]

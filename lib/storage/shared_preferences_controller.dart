@@ -2,7 +2,6 @@ import 'package:producer_family_app/storage/models/login_modal.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'models/login_modal.dart';
 
 class SharedPreferencesController {
   SharedPreferencesController._intenal();
@@ -36,9 +35,10 @@ class SharedPreferencesController {
 
   //  user log  google *************************************************
 
-  Future saveLoggedInUserGoogle() async {
-    await _sharedPreferences.setBool(loggedInUserGoogle, true);
+  Future saveLoggedInUserGoogle({bool state=true}) async {
+    await _sharedPreferences.setBool(loggedInUserGoogle, state);
   }
+
 
   bool get isLoggedInUserGoogle =>
       _sharedPreferences.getBool(loggedInUserGoogle) ?? false;
@@ -67,11 +67,11 @@ class SharedPreferencesController {
 
   Future save(LoginModal loginModal) async {
     await _sharedPreferences.setString(
-        tokenKey, 'Bearer ' + loginModal.accesstoken);
+        tokenKey, 'Bearer ${loginModal.accesstoken}');
   }
 
   Future saveId(int Id) async {
-    await _sharedPreferences.setString('id', Id.toString());
+    await _sharedPreferences.setInt('id', Id.toInt());
   }
 
   int getUserId() => _sharedPreferences.getInt('id') ?? 0;
@@ -104,4 +104,27 @@ class SharedPreferencesController {
   }
 
   String getlanguage() => _sharedPreferences.getString("language_code") ?? 'ar';
+
+
+
+
+
+
+  // Future orderId() async {
+  //   Database _database = DbProvider().database;
+  //
+  //   List orderDetails = await _database.query('cart');
+  //
+  //   await _sharedPreferences.setString("order_details", "$orderDetails");
+  //
+  //
+  // }
+  // String getOrderId() => _sharedPreferences.getString("order_details") ?? '';
+
+
+
+//***********************************************************************
+
+
+
 }

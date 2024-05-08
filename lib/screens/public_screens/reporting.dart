@@ -1,24 +1,27 @@
-
-
 import 'package:flutter/material.dart';
-import 'package:producer_family_app/components/headers/app_bar_family.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:producer_family_app/components/containers/container_app.dart';
-import 'package:producer_family_app/components/show_helper.dart';
+import 'package:producer_family_app/components/headers/app_bar_family.dart';
 import 'package:producer_family_app/storage/api/order_controller.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_button.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_field.dart';
 import 'package:producer_family_app/style/style_text.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../../storage/shared_preferences_controller.dart';
 
 class Reporting extends StatefulWidget {
-  bool user;
-  bool driver;
-  bool family;
-  String id;
+  final bool user;
+  final bool driver;
+  final bool family;
+  final int id;
 
-Reporting({this.driver=false,this.family=false,this.user=false,this.id=""});
+  const Reporting(
+      {this.driver = false,
+      this.family = false,
+      this.user = false,
+      this.id = 0});
   @override
   _ReportingState createState() => _ReportingState();
 }
@@ -32,21 +35,24 @@ class _ReportingState extends State<Reporting> {
     super.initState();
     report = TextEditingController();
     report.addListener(() => setState(() {}));
-
   }
 
   @override
   void dispose() {
-    super.dispose();
     report.dispose();
+    super.dispose();
   }
+
   int groupValue = 1;
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
     return Scaffold(
-      appBar: AppBarWhite(context,title:           AppLocalizations.of(context)!.reporting, onPressed: (){},
+      appBar: appBarWhite(
+        context,
+        title: AppLocalizations.of(context)!.reporting,
+        onPressed: () {},
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -76,63 +82,59 @@ class _ReportingState extends State<Reporting> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-
-                      if(widget.user == true)
-                      Row(
-                        children: [
-                          Radio(
-                              value: 3,
-                              activeColor: kSpecialColor,
-                              groupValue: groupValue,
-                              onChanged: (int? val) {
-                                groupValue = val!;
-                                print(groupValue);
-                                setState(() {});
-                              }),
-                          StyleText(
-                            AppLocalizations.of(context)!.user,
-                          ),
-                        ],
-                      ),
-                      if(widget.family == true)
-
+                      if (widget.user == true &&
+                          SharedPreferencesController().isLoggedInFamily !=
+                              true)
                         Row(
-                        children: [
-                          Radio(
-                              value: 1,
-                              activeColor: kSpecialColor,
-                              groupValue: groupValue,
-                              onChanged: (int? val) {
-                                groupValue = val!;
-                                setState(() {});
-                                print(groupValue);
-
-                              }),
-                          StyleText(
-                            AppLocalizations.of(context)!.family,
-                          ),
-                        ],
-                      ),
-                      if(widget.driver == true)
-
-                      Row(
-                        children: [
-                          Radio(
-                              value: 2,
-                              activeColor: kSpecialColor,
-                              groupValue: groupValue,
-                              onChanged: (int? val) {
-                                groupValue = val!;
-                                setState(() {});
-                                print(groupValue);
-
-                              }),
-                          StyleText(
-                            AppLocalizations.of(context)!.driver,
-                          ),
-                        ],
-                      ),
-
+                          children: [
+                            Radio(
+                                value: 3,
+                                activeColor: kSpecialColor,
+                                groupValue: groupValue,
+                                onChanged: (int? val) {
+                                  groupValue = val!;
+                                  // print(groupValue);
+                                  setState(() {});
+                                }),
+                            StyleText(
+                              AppLocalizations.of(context)!.user,
+                            ),
+                          ],
+                        ),
+                      if (widget.family == true)
+                        Row(
+                          children: [
+                            Radio(
+                                value: 1,
+                                activeColor: kSpecialColor,
+                                groupValue: groupValue,
+                                onChanged: (int? val) {
+                                  groupValue = val!;
+                                  setState(() {});
+                                  // print(groupValue);
+                                }),
+                            StyleText(
+                              AppLocalizations.of(context)!.family,
+                            ),
+                          ],
+                        ),
+                      if (widget.driver == true)
+                        Row(
+                          children: [
+                            Radio(
+                                value: 2,
+                                activeColor: kSpecialColor,
+                                groupValue: groupValue,
+                                onChanged: (int? val) {
+                                  groupValue = val!;
+                                  setState(() {});
+                                  // print(groupValue);
+                                }),
+                            StyleText(
+                              AppLocalizations.of(context)!.driver,
+                            ),
+                          ],
+                        ),
                       Row(
                         children: [
                           Radio(
@@ -141,7 +143,7 @@ class _ReportingState extends State<Reporting> {
                               groupValue: groupValue,
                               onChanged: (int? val) {
                                 groupValue = val!;
-                                print(groupValue);
+                                // print(groupValue);
                                 setState(() {});
                               }),
                           StyleText(
@@ -149,11 +151,9 @@ class _ReportingState extends State<Reporting> {
                           ),
                         ],
                       ),
-
                     ],
                   ),
                 ),
-
                 SizedBox(
                   height: hSpaceLarge,
                 ),
@@ -172,11 +172,11 @@ class _ReportingState extends State<Reporting> {
                 ),
                 StyleButton(
                   AppLocalizations.of(context)!.send,
-                  backgroundColor: kRefuse,onPressed: ()async{
-
-                await  reporting(order_id:widget.id);
-                print(widget.id);
-                },
+                  backgroundColor: kRefuse,
+                  onPressed: () async {
+                    await reporting(orderId: widget.id);
+                    // print(widget.id);
+                  },
                   sideColor: kRefuse,
                 )
               ]),
@@ -184,17 +184,15 @@ class _ReportingState extends State<Reporting> {
       ),
     );
   }
-  Future reporting({String order_id=""}) async {
 
-    bool reportIt = await OrderController().reportOrdersController(
-        order_id: order_id,
-       language: Localizations.localeOf(context).languageCode=="ar"?"ar":"en",
-       report: report.text,
-        report_type: "$groupValue",
+  Future reporting({int orderId = 0}) async {
+    await OrderController().reportOrdersController(
+        orderId: orderId,
+        language:
+            Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
+        report: report.text,
+        reportType: "$groupValue",
         context: context);
-    print("$groupValue  ${report.text}");
-
+    // print("$groupValue  ${report.text}");
   }
-
 }
-

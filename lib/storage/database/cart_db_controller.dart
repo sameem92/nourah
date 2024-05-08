@@ -1,12 +1,12 @@
 import 'package:producer_family_app/storage/database/db_operations.dart';
 import 'package:producer_family_app/storage/database/db_provider.dart';
-import 'package:producer_family_app/storage/models/database/cart.dart';
+import 'package:producer_family_app/storage/models/cart.dart';
 import 'package:producer_family_app/storage/shared_preferences_controller.dart';
 import 'package:sqflite/sqflite.dart';
 
-class CartDbController extends DbOperations<Cart> {
-  Database _database = DbProvider().database;
-
+class CartDbController implements DbOperations<Cart> {
+    Database _database = DbProvider().database;
+  CartDbController():_database=DbProvider().database;
   @override
   Future<int> create(Cart object) async {
     return await _database.insert('cart', object.toMap());

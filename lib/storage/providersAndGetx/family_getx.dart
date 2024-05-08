@@ -6,16 +6,15 @@ import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:producer_family_app/storage/api/family_controller/categories_family_controller.dart';
 import 'package:producer_family_app/storage/api/family_controller/family_controller.dart';
 import 'package:producer_family_app/storage/api/family_controller/products_family_controller.dart';
-import 'package:producer_family_app/storage/api/login_profile_controller.dart';
 import 'package:producer_family_app/storage/models/family_modal/get_categories_modal.dart';
 import 'package:producer_family_app/storage/models/family_modal/products_family.dart';
 
-class getFamilyPolicyGetx extends GetxController {
+class GetFamilyPolicyGetx extends GetxController {
   var isLoading = true.obs;
 
-  RxMap<String, dynamic> policies = <String, dynamic>{}.obs;
+  RxMap<dynamic, dynamic> policies = <dynamic, dynamic>{}.obs;
 
-  static getFamilyPolicyGetx get to => Get.find();
+  static GetFamilyPolicyGetx get to => Get.find();
 
   @override
   void onInit() {
@@ -23,11 +22,11 @@ class getFamilyPolicyGetx extends GetxController {
     super.onInit();
   }
 
-  Future<void> getPolicy({BuildContext? context}) async {
+  Future<void> getPolicy({BuildContext? context, bool? isUpdated}) async {
     isLoading(true);
     try {
       var show = await FamilyController()
-          .getFamilyPoliciesController(context: context);
+          .getFamilyPoliciesController(context: context, isUpdated: isUpdated);
       if (show != null) {
         policies.value = show;
       }
@@ -35,30 +34,34 @@ class getFamilyPolicyGetx extends GetxController {
       isLoading(false);
     }
   }
-  Future<void> addPolicies(
 
-      {required BuildContext context,required String  arPolicy,required String  enPolicy,}) async {
-    bool add=await  FamilyController().addPoliciesFamilyController(context,
-
-      language: Localizations.localeOf(context).languageCode == "ar"
-          ? "ar"
-          : "en", enPolicy: enPolicy, arPolicy: arPolicy,
+  Future<void> addPolicies({
+    required BuildContext context,
+    required String arPolicy,
+    required String enPolicy,
+  }) async {
+    bool add = await FamilyController().addPoliciesFamilyController(
+      context,
+      language:
+          Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
+      enPolicy: enPolicy,
+      arPolicy: arPolicy,
     );
 
     if (add) {
-      getPolicy();
+      getPolicy(isUpdated: true);
     }
   }
 }
 //***********************************************************
 
-class getCategoriesFamilyGetx extends GetxController {
+class GetCategoriesFamilyGetx extends GetxController {
   var isLoading = true.obs;
 
   RxList<CategoriesModalFamily> categoriesFamily =
       <CategoriesModalFamily>[].obs;
 
-  static getCategoriesFamilyGetx get to => Get.find();
+  static GetCategoriesFamilyGetx get to => Get.find();
 
   @override
   void onInit() {
@@ -66,103 +69,114 @@ class getCategoriesFamilyGetx extends GetxController {
     super.onInit();
   }
 
-  Future<void> getCategory({BuildContext? context}) async {
+  Future<void> getCategory({BuildContext? context, bool? isUpdated}) async {
     isLoading(true);
     try {
       var show = await CategoriesFamilyController()
-          .getFamilyCategoriesController(context: context);
+          .getFamilyCategoriesController(
+              context: context, isUpdated: isUpdated);
       if (show != null) {
         categoriesFamily.value = show;
-        getCategoriesFamilyGetx().getCategory();
-
       }
     } finally {
       isLoading(false);
     }
   }
+
+  Future<void> refreshData() async {
+    getCategory(isUpdated: true);
+  }
+
   Future<void> addCategories(
-
-      {required BuildContext context,required String  arname,required String  enname,required int id}) async {
-   bool add=await  CategoriesFamilyController().
-    addCategoriesFamilyController(context,
-
-        language: Localizations.localeOf(context).languageCode == "ar"
-            ? "ar"
-            : "en", arname: arname, enname: enname,id:id
-        );
+      {required BuildContext context,
+      required String arname,
+      required String enname,
+      required int id}) async {
+    bool add = await CategoriesFamilyController().addCategoriesFamilyController(
+        context,
+        language:
+            Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
+        arname: arname,
+        enname: enname,
+        id: id);
 
     if (add) {
-      categoriesFamily.add(CategoriesModalFamily(arname: arname,enname: enname,id: id));
-
+      // categoriesFamily.add(CategoriesModalFamily(arname: arname,enname: enname,id: id));
+      getCategory(isUpdated: true);
     }
   }
 
-
   Future<void> deleteCategories(
-
-      {required BuildContext context,required int category_id }) async {
-    bool delete=await  CategoriesFamilyController().
-    deleteCategoriesFamilyController(category_id:category_id.toString() ,
-
-      language: Localizations.localeOf(context).languageCode == "ar"
-          ? "ar"
-          : "en", context: context,
+      {required BuildContext context, required int categoryId}) async {
+    bool delete =
+        await CategoriesFamilyController().deleteCategoriesFamilyController(
+      categoryId: categoryId.toString(),
+      language:
+          Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
+      context: context,
     );
 
     if (delete) {
-      categoriesFamily.removeWhere((element) => element.id == category_id);
+      // categoriesFamily.removeWhere((element) => element.id == category_id);
 
-
+      getCategory(isUpdated: true);
     }
   }
 
   Future<void> updateCategories(
-
-      {required BuildContext context,required String  arname,required String  enname,required int category_id }) async {
-    bool update=
-    await  CategoriesFamilyController().
-    updateCategoriesFamilyController(context,
-
-      language: Localizations.localeOf(context).languageCode == "ar"
-          ? "ar"
-          : "en", enname: enname, arname: arname, category_id: category_id.toString(),
+      {required BuildContext context,
+      required String arname,
+      required String enname,
+      required int categoryId}) async {
+    bool update =
+        await CategoriesFamilyController().updateCategoriesFamilyController(
+      context,
+      language:
+          Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
+      enname: enname,
+      arname: arname,
+      categoryId: categoryId.toString(),
     );
 
     if (update) {
-      categoriesFamily.removeWhere((element) => element.id == category_id);
-
-      categoriesFamily.add(CategoriesModalFamily(arname: arname,enname: enname,id: category_id));
-
+      // categoriesFamily.removeWhere((element) => element.id == category_id);
+      //
+      // categoriesFamily.add(CategoriesModalFamily(arname: arname,enname: enname,id: category_id));
+      getCategory(isUpdated: true);
     }
   }
 }
 //***********************************************************
 
-class getProductsFamilyGetx extends GetxController {
+class GetProductsFamilyGetx extends GetxController {
   var isLoading = true.obs;
-String language='';
+  String language = '';
   RxList<ProductsModalFamily> productsFamily = <ProductsModalFamily>[].obs;
-  getProductsFamilyGetx({this.language = ''});
-  static getProductsFamilyGetx get to => Get.find();
+  GetProductsFamilyGetx({this.language = ''});
+  static GetProductsFamilyGetx get to => Get.find();
 
   @override
   void onInit() {
-    getProductFamily();
     super.onInit();
+    getProductFamily();
   }
 
-  Future<void> getProductFamily({BuildContext? context}) async {
+  Future<void> getProductFamily(
+      {BuildContext? context, bool? isUpdated}) async {
     isLoading(true);
     try {
-      var show = await ProductFamilyController()
-          .getFamilyProductsController(context: context,language:language );
+      var show = await ProductFamilyController().getFamilyProductsController(
+          context: context, language: language, isUpdated: isUpdated);
       if (show != null) {
         productsFamily.value = show;
-
       }
     } finally {
       isLoading(false);
     }
+  }
+
+  Future<void> refreshData() async {
+    await getProductFamily(isUpdated: true);
   }
 
   Future<void> deleteProduct(
@@ -173,146 +187,183 @@ String language='';
             language: Localizations.localeOf(context).languageCode == "ar"
                 ? "ar"
                 : "en",
-            product_id: id.toString());
+            productId: id.toString());
 
     if (deleted) {
-      productsFamily.removeWhere((element) => element.id == id);
+      // productsFamily.removeWhere((element) => element.id == id);
+      getProductFamily(isUpdated: true);
     }
   }
 
   Future<void> editProduct(BuildContext context,
       {String? path1 = "",
-      String? path2 = "",
-     required int product_id ,
-      String image_id = '',
-      required int category ,
+      required int productId,
+      required int imageId,
+      required int category,
       String arname = '',
       String enname = '',
-      String price = '',
-      String duration_from = '',
-      String duration_to = '',
-      String duration_unit = '',
-      String offer_duration = '',
-      String offer_duration_unit = '',
+      int price = 0,
+      int offerStatus = 0,
+      required int brand,
+      int durationFrom = 0,
+      int durationTo = 0,
+      String durationUnit = '',
+      int offerDuration = 0,
+      String offerDurationUnit = '',
       String language = '',
-      String offer_price = '',
-      int offerDiscount = 0,
-
+      required double offerPrice,
       String ardesc = '',
-
       String endesc = '',
-      required Function(bool status ) uploadEvent }) async
-  {
-   await ProductFamilyController().editProductController(
-        context,
-        uploadEvent: uploadEvent,
+      required Function(bool status) uploadEvent}) async {
+    await ProductFamilyController().editProductController(
+      context,
+      uploadEvent: uploadEvent,
+      language: language,
+      productId: productId,
+      category: category,
+      enname: enname,
+      arname: arname,
+      ardesc: ardesc,
+      brand: brand,
+      durationFrom: durationFrom,
+      durationTo: durationTo,
+      durationUnit: durationUnit,
+      endesc: endesc,
+      imageId: imageId,
+      offerDuration: offerDuration,
+      offerDurationUnit: offerDurationUnit,
+      offerPrice: offerPrice,
+      offerStatus: offerStatus,
+      path1: path1,
+      price: price,
+    );
 
-        language: language,
-
-        product_id: product_id.toString(),
-        category: category.toString(),
-        enname: enname,
-        arname: arname,
-        ardesc: ardesc,
-        duration_from: duration_from,
-        duration_to: duration_to,
-        duration_unit: duration_unit,
-        endesc: endesc,
-        image_id: image_id,
-        offer_duration: offer_duration,
-        offer_duration_unit: offer_duration_unit,
-        offer_price: offer_price,
-        path1: path1,
-        path2: path2,
-        price: price);
-
-
-      productsFamily.removeWhere((element) => element.id == product_id);
-
-      productsFamily.add(ProductsModalFamily(id: product_id
-      ,price: price,
-        durationUnit:duration_unit ,
-        durationTo: duration_to,
-        durationFrom:duration_from ,
-        ardesc: ardesc,
-        endesc:endesc ,enname:enname ,arname:arname ,category:category
-        ,offerDuration:offer_duration ,offerDurationUnit:offer_duration_unit ,offerPrice:offer_price ,
-offerDiscount: offerDiscount,
-images: <Images>[]
-      ));
-
-
+    getProductFamily(isUpdated: true);
   }
 
+  Future<void> editProductWithouSale(
+    BuildContext context, {
+    String? path1 = "",
+    required int productId,
+    required int imageId,
+    required int category,
+    String arname = '',
+    String enname = '',
+    int price = 0,
+    required int brand,
+    int durationFrom = 0,
+    int durationTo = 0,
+    String durationUnit = '',
+    String language = '',
+    String ardesc = '',
+    String endesc = '',
+    required Function(bool status) uploadEvent,
+  }) async {
+    await ProductFamilyController().editProductWithoutSaleController(
+      context,
+      uploadEvent: uploadEvent,
+      language: language,
+      productId: productId,
+      category: category,
+      enname: enname,
+      brand: brand,
+      arname: arname,
+      ardesc: ardesc,
+      durationFrom: durationFrom,
+      durationTo: durationTo,
+      durationUnit: durationUnit,
+      endesc: endesc,
+      imageId: imageId,
+      path1: path1,
+      price: price,
+    );
+
+    getProductFamily(isUpdated: true);
+  }
 
   Future<void> addProduct(BuildContext context,
       {String? path1 = "",
-        String? path2 = "",
-
-        String image_id = '',
-        required int category ,
-        String arname = '',
-        String enname = '',
-        String price = '',
-        String duration_from = '',
-        String duration_to = '',
-        String duration_unit = '',
-        String offer_duration = '',
-        String offer_duration_unit = '',
-        String offer_price = '',
-        int offerDiscount = 0,
-        int product_id = 0,
-        String ardesc = '',
-        String endesc = '',
-        required Function(bool status ) uploadEvent }) async
-  {
-     await ProductFamilyController().adddProductController(
-        context,
+      String imageId = '',
+      required int category,
+      String arname = '',
+      String enname = '',
+      int price = 0,
+      int offerStatus = 0,
+      required int brand,
+      int durationFrom = 0,
+      int durationTo = 0,
+      String durationUnit = '',
+      required int offerDuration,
+      String offerDurationUnit = '',
+      required int offerPrice,
+      int offerDiscount = 0,
+      int productId = 0,
+      String ardesc = '',
+      String endesc = '',
+      required Function(bool status) uploadEvent}) async {
+    await ProductFamilyController().adddProductController(context,
         uploadEvent: uploadEvent,
-
-        language: Localizations.localeOf(context).languageCode == "ar"
-            ? "ar"
-            : "en",
-
+        language:
+            Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
         category: category,
         enname: enname,
         arname: arname,
         ardesc: ardesc,
-        duration_from: duration_from,
-        duration_to: duration_to,
-        duration_unit: duration_unit,
+        brand: brand,
+        durationFrom: durationFrom,
+        durationTo: durationTo,
+        durationUnit: durationUnit,
         endesc: endesc,
-        image_id: image_id,
-        offer_duration: offer_duration,
-        offer_duration_unit: offer_duration_unit,
-        offer_price: offer_price,
+        imageId: imageId,
+        offerDuration: offerDuration,
+        offerDurationUnit: offerDurationUnit,
+        offerPrice: offerPrice,
         path1: path1,
-        path2: path2,
+        offerStatus: offerStatus,
         price: price);
+    getProductFamily(isUpdated: true);
+  }
 
-
-
-    productsFamily.add(ProductsModalFamily(id: product_id
-        ,price: price,
-        durationUnit:duration_unit ,
-        durationTo: duration_to,
-        durationFrom:duration_from ,
+  Future<void> addProductWithoutSale(BuildContext context,
+      {String? path1 = "",
+      String imageId = '',
+      required int category,
+      String arname = '',
+      String enname = '',
+      int price = 0,
+      required int brand,
+      int durationFrom = 0,
+      int durationTo = 0,
+      String durationUnit = '',
+      int productId = 0,
+      String ardesc = '',
+      String endesc = '',
+      required Function(bool status) uploadEvent}) async {
+    await ProductFamilyController().adddProductWithoutSaleController(context,
+        uploadEvent: uploadEvent,
+        language:
+            Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
+        category: category,
+        enname: enname,
+        arname: arname,
         ardesc: ardesc,
-        endesc:endesc ,enname:enname ,arname:arname ,category:category
-        ,offerDuration:offer_duration ,offerDurationUnit:offer_duration_unit ,offerPrice:offer_price ,
-        offerDiscount: offerDiscount,
-        images: <Images>[]
-    ));
-
-
+        durationFrom: durationFrom,
+        durationTo: durationTo,
+        durationUnit: durationUnit,
+        endesc: endesc,
+        imageId: imageId,
+        brand: brand,
+        path1: path1,
+        price: price);
+    getProductFamily(isUpdated: true);
   }
 }
 
 //***********************************************************
-class getOneProductFamilyGetx extends GetxController {
+class GetOneProductFamilyGetx extends GetxController {
   RxMap<String, dynamic> oneProduct = <String, dynamic>{}.obs;
 
-  static getOneProductFamilyGetx get to => Get.find();
+  static GetOneProductFamilyGetx get to => Get.find();
 
   @override
   void onInit() {
@@ -323,5 +374,39 @@ class getOneProductFamilyGetx extends GetxController {
   Future<void> getProductFamily({BuildContext? context}) async {
     oneProduct.value = await ProductFamilyController()
         .getFamilyOneProductsController(context: context);
+  }
+}
+
+//***********************************************************
+
+class GetMainCategoriesFamilyGetx extends GetxController {
+  var isLoading = true.obs;
+  String language = '';
+  RxList<MainCategoriesModalFamily> mainCategoriesFamily =
+      <MainCategoriesModalFamily>[].obs;
+  GetMainCategoriesFamilyGetx({this.language = ''});
+  static GetMainCategoriesFamilyGetx get to => Get.find();
+
+  @override
+  void onInit() {
+    super.onInit();
+    getMainProductFamily();
+  }
+
+  Future<void> getMainProductFamily({
+    BuildContext? context,
+  }) async {
+    isLoading(true);
+    try {
+      var show =
+          await ProductFamilyController().getFamilyMainCategoriesController(
+        context: context,
+      );
+      if (show != null) {
+        mainCategoriesFamily.value = show;
+      }
+    } finally {
+      isLoading(false);
+    }
   }
 }

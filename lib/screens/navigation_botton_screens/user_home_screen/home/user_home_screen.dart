@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_getx_widget.dart';
 import 'package:producer_family_app/components/headers/app_bar_family.dart';
+import 'package:producer_family_app/screens/navigation_botton_screens/user_home_screen/home/products_tab.dart';
+import 'package:producer_family_app/screens/navigation_botton_screens/user_home_screen/home/sales_tab.dart';
 import 'package:producer_family_app/storage/notificatons.dart';
+import 'package:producer_family_app/storage/providersAndGetx/app_getx.dart';
 import 'package:producer_family_app/storage/providersAndGetx/home_getx.dart';
 import 'package:producer_family_app/storage/providersAndGetx/language_change.dart';
+import 'package:producer_family_app/storage/providersAndGetx/order_getx.dart';
 import 'package:producer_family_app/style/size_config.dart';
+import 'package:producer_family_app/style/style_button.dart';
 import 'package:producer_family_app/style/style_colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:producer_family_app/style/style_field.dart';
 import 'package:provider/provider.dart';
 
-import 'home_widget.dart';
+import 'family_tab.dart';
 
 class UserHomeScreen extends StatefulWidget {
   @override
@@ -22,33 +26,10 @@ class UserHomeScreen extends StatefulWidget {
 
 class _UserHomeScreenState extends State<UserHomeScreen>
     with SingleTickerProviderStateMixin, FbNotifications {
-  List<Widget> _ScreensTab = [
-    Obx(() {
-      HomeGetx _homeGetx = Get.find();
-      CategoriesGetX _categoriesGetX = Get.find();
-      return HomeWidget(
-        special: [],
-        items: [],
-      );
-    }),
-    Obx(() {
-      HomeGetx _homeGetx = Get.find();
-      CategoriesGetX _categoriesGetX = Get.find();
-      return HomeWidget(
-        special: [],
-        items: [],
-        family: true,
-      );
-    }),
-    Obx(() {
-      HomeGetx _homeGetx = Get.find();
-      CategoriesGetX _categoriesGetX = Get.find();
-      return HomeWidget(
-        special: [],
-        items: [],
-        sales: true,
-      );
-    })
+  List<Widget> screensTab = [
+    ProductsTab(),
+    FamilyTab(),
+    SalesTab(),
   ];
   int _selectedIndex = 1;
   late TabController _tabController;
@@ -57,113 +38,142 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   @override
   void initState() {
     super.initState();
+    Get.delete<getMakeOrderIdGetx>();
     requestNotificationPermissions();
+    managenotificationAction(context);
+    initializeForegroundNotificationForAndroid();
     search.addListener(() => setState(() {}));
-    _tabController = TabController(length: _ScreensTab.length, vsync: this);
+    _tabController = TabController(length: screensTab.length, vsync: this);
     _tabController.addListener(() {
-      setState(() {
-        _selectedIndex = _tabController.index;
-      });
+      if (!mounted) {
+      } else {
+        setState(() {
+          _selectedIndex = _tabController.index;
+          // print(_selectedIndex);
+        });
+      }
     });
+
+    _tabController.animateTo(
+        Provider.of<intIndexTabHome>(context, listen: false).intIndex != 0
+            ? Provider.of<intIndexTabHome>(context, listen: false).intIndex
+            : 0);
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    super.dispose();
+
     search.dispose();
+    _tabController.dispose();
+    super.dispose();
+
+    // Get.delete<HomeGetx>();
   }
 
   @override
   Widget build(BuildContext context) {
-    HomeGetx _homeGetx = Get.put(HomeGetx(
-      language:
-          Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
-      lat: "${Provider.of<LatNotiferUser>(context).latUser}",
-      lng: "${Provider.of<LongNotiferUser>(context).longUser}",
+    HomeGetx homeGetx = Get.put(HomeGetx(
+      context: context,
     ));
-
-    CategoriesGetX _categoriesGetX = Get.put(CategoriesGetX());
     return Scaffold(
-      appBar: AppBarFamily(
-        botoom: IconButton(
-          icon: Icon(
-            Provider.of<stringNotiferSearch>(context).search != ""
-                ? Icons.refresh
-                : Icons.search,
-            size: fIconLarge,
-            color: kSecondaryColor,
-          ),
-          onPressed: () {
-            FocusScope.of(context).unfocus();
+        appBar: AppBarFamily(
+          botoom: IconButton(
+            icon: Icon(
+              Icons.search,
+              size: fIconLarge,
+              color: kTextColor,
+            ),
+            onPressed: () {
+              if (search.text.isNotEmpty) {
+                FocusScope.of(context).unfocus();
+                HomeGetx.to.filterProductsByName(
+                    name: search.text,
+                    context: context,
+                    categoryId:
+                        Provider.of<intCategoryId>(context, listen: false)
+                            .categoryId);
 
-            HomeGetx.to
-                .filterProductsByName(name: search.text, context: context);
-            Provider.of<stringNotiferSearch>(context, listen: false)
-                .changeStringSearch(search.text);
-            search.clear();
-          },
-        ),
-        search: StyleField(
-          padding: 0,
-          filledBool: false,
-          title: AppLocalizations.of(context)!.search,
-          textAlign: TextAlign.center,
-          controller: search,
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          onTap: (int selectedIndex) {
-            selectedIndex = _selectedIndex;
-          },
-          padding: EdgeInsets.zero,
-          labelColor: kSpecialColor.withOpacity(.8),
-          indicatorWeight: SizeConfig.scaleHeight(3.0),
-          unselectedLabelColor: kTextColor,
-          labelPadding: EdgeInsets.only(bottom: 0, top: 0),
-          indicatorColor: kSpecialColor,
-          labelStyle: TextStyle(
-            fontSize: fLarge,
-            fontFamily: "ElMessiri",
+                Provider.of<stringNotiferSearch>(context, listen: false)
+                    .changeStringSearch(search.text);
+              }
+            },
           ),
-          tabs: [
-            Tab(
-              text: AppLocalizations.of(context)!.products,
+          search: StyleField(
+            padding: 0,
+            maxLines: 3,
+            height: 1,
+            filledBool: false,
+            title: AppLocalizations.of(context)!.search,
+            textAlign: TextAlign.center,
+            controller: search,
+            onPressedClose: () {
+              Provider.of<stringNotiferSearch>(context, listen: false)
+                  .changeStringSearch("");
+              homeGetx.filterProductsByCategory(
+                  categoryId: Provider.of<intCategoryId>(context, listen: false)
+                      .categoryId,
+                  name: "");
+            },
+          ),
+          bottom: TabBar(
+            controller: _tabController,
+            onTap: (int selectedIndex) {
+              selectedIndex = _selectedIndex;
+              // print(_selectedIndex);
+              Provider.of<intIndexTabHome>(context, listen: false)
+                  .changeIntIndexTabHome(_selectedIndex);
+            },
+            padding: EdgeInsets.zero,
+            labelColor: kSpecialColor,
+            indicatorWeight: SizeConfig.scaleHeight(3.0),
+            unselectedLabelColor: kTextColor,
+            labelPadding: const EdgeInsets.only(bottom: 0, top: 0),
+            indicatorColor: kSpecialColor,
+            labelStyle: TextStyle(
+              fontSize: SizeConfig.scaleHeight(24),
+              fontFamily: "ElMessiri",
             ),
-            Tab(
-              text: AppLocalizations.of(context)!.producerfamilies,
-            ),
-            Tab(
-              text: AppLocalizations.of(context)!.sales,
-            ),
-          ],
+            tabs: [
+              Tab(
+                text: AppLocalizations.of(context)!.products,
+              ),
+              Tab(
+                text: AppLocalizations.of(context)!.producerfamilies,
+              ),
+              Tab(
+                text: AppLocalizations.of(context)!.sales,
+              ),
+            ],
+          ),
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          Obx(() {
-            return HomeWidget(
-              special: _homeGetx.specialproducts.value.data,
-              items: _homeGetx.products.value.data,
-            );
-          }),
-          Obx(() {
-            return HomeWidget(
-              special: _homeGetx.specialfamilies.value.data,
-              items: _homeGetx.families.value.data,
-              family: true,
-            );
-          }),
-          Obx(() {
-            return HomeWidget(
-              special: _homeGetx.specialoffers.value.data,
-              items: _homeGetx.offers.value.data,
-              sales: true,
-            );
-          })
-        ],
-      ),
-    );
+        body: GetX<GetNetworkGetx>(
+            init: GetNetworkGetx(),
+            builder: (GetNetworkGetx network) {
+              return network.connectionType.value == 0
+                  ? Column(
+                      children: [
+                        noContent(
+                            context, AppLocalizations.of(context)!.noInternet),
+                        SizedBox(
+                          height: SizeConfig.scaleHeight(30),
+                        ),
+                        StyleButton(AppLocalizations.of(context)!.refresh,
+                            sideColor: kSpecialColor,
+                            backgroundColor: kSpecialColor,
+                            onPressed: () async {
+                          await network.refreshData();
+                        })
+                      ],
+                    )
+                  : TabBarView(
+                      controller: _tabController,
+                      children: [
+                        ProductsTab(),
+                        FamilyTab(),
+                        SalesTab(),
+                      ],
+                    );
+            }));
   }
 }

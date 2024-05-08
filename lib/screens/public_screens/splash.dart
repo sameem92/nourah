@@ -1,15 +1,20 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:producer_family_app/screens/public_screens/map_screen.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:producer_family_app/storage/notificatons.dart';
-import 'package:producer_family_app/storage/providersAndGetx/login_profile_getx.dart';
-import 'package:producer_family_app/storage/shared_preferences_controller.dart';
+import 'package:producer_family_app/storage/providersAndGetx/app_getx.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:producer_family_app/style/style_text.dart';
+
+import '../../storage/shared_preferences_controller.dart';
+import 'map_screen.dart';
 
 class Splash extends StatefulWidget {
   @override
@@ -23,56 +28,92 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   late Animation<double> animationRadiusOut;
 
   // Color _colorDot =Colors.grey.shade400;
-  final Color _colorDot = k2Color;
-  final Color _colorDotSmall = kBackgroundColor;
+  final Color _colorDot = Colors.white;
+  final Color _colorDotSmall = Colors.white;
 
   static double initialRadius = SizeConfig.scaleHeight(100);
   static double radius = SizeConfig.scaleHeight(0.0);
-
   @override
   void initState() {
-
     // TODO: implement initState
     super.initState();
+    managenotificationAction(context);
+    Get.put(GetBannersGetx());
 
-    managenotificationAction();
+    Future.delayed(const Duration(milliseconds: 2900), () async {
+      // Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(
+      //         builder: (context) => PaymentScreen(
+      //               // builder: (context) => mainApplePay(
+      //               title: 'asasas',
+      //             )));
 
-    Future.delayed(Duration(milliseconds: 2900), () {
       if (SharedPreferencesController().isLoggedInFamily == true) {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const MapScreen(
+                      family: true,
+                    )));
+      } else if (SharedPreferencesController().isLoggedInDriver == true) {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const MapScreen(
+                      driver: true,
+                    )));
+      } else if (SharedPreferencesController().isLoggedInUser == true) {
+        String fileName4 = "getHome.json";
+        var dir4 = await getTemporaryDirectory();
+        File file4 = File("${dir4.path}/$fileName4");
+        if (file4.existsSync()) file4.deleteSync(recursive: true);
+        // print('getHome.json deleteSync user');
 
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MapScreen(family:true,)));
-
-      } else if (SharedPreferencesController().isLoggedInDriver ==
-          true) {
-
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MapScreen(driver: true,)));
-
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const MapScreen(
+                      user: true,
+                    )));
       } else {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MapScreen(user: true,)));
-      }});
+        String fileName4 = "getHome.json";
+        var dir4 = await getTemporaryDirectory();
+        File file4 = File("${dir4.path}/$fileName4");
+        if (file4.existsSync()) file4.deleteSync(recursive: true);
+        // print('getHome.json deleteSync no user');
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const MapScreen(
+                      user: false,
+                    )));
+      }
+    });
 
     controller = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 3000));
+        vsync: this, duration: const Duration(milliseconds: 3000));
 
     animationRotation = Tween<double>(
       begin: 0,
       end: 1.1,
     ).animate(CurvedAnimation(
-        parent: controller, curve: Interval(0.1, 1, curve: Curves.linear)));
+        parent: controller,
+        curve: const Interval(0.1, 1, curve: Curves.linear)));
 
     animationRadiusIn = Tween<double>(
       begin: 1,
       end: 2,
     ).animate(CurvedAnimation(
         parent: controller,
-        curve: Interval(.8, 1, curve: Curves.easeInToLinear)));
+        curve: const Interval(.8, 1, curve: Curves.easeInToLinear)));
 
     animationRadiusOut = Tween<double>(
       begin: 0.0,
       end: 1.15,
     ).animate(CurvedAnimation(
         parent: controller,
-        curve: Interval(0.0, 1, curve: Curves.easeOutBack)));
+        curve: const Interval(0.0, 1, curve: Curves.easeOutBack)));
 
     controller.addListener(() {
       setState(() {
@@ -84,7 +125,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       });
     });
     controller.repeat(
-      period: Duration(milliseconds: 3000),
+      period: const Duration(milliseconds: 3000),
     );
   }
 
@@ -100,7 +141,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     double dotRadius = SizeConfig.scaleTextFont(15.0);
     double dotRadiusSmall = SizeConfig.scaleTextFont(10.0);
     return Scaffold(
-        backgroundColor: Color(0xFF87695C)..withOpacity(.9),
+        backgroundColor: kSpecialColor,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -108,9 +149,13 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
             Stack(
               alignment: Alignment.center,
               children: [
+                // Image.asset('assets/images/logopinknourah.png',filterQuality: FilterQuality.high,colorBlendMode: BlendMode.clear),
                 CircleAvatar(
-                  radius: SizeConfig.scaleHeight(100),
-                  backgroundImage: AssetImage('assets/images/family_logo.png'),
+                  radius: SizeConfig.scaleHeight(90),
+                  foregroundColor: Colors.transparent,
+                  // foregroundImage: AssetImage('assets/images/logopinknourah.png'),
+                  backgroundColor: Colors.transparent,
+                  child: Image.asset('assets/images/nourahlogowhite.png'),
                 ),
                 RotationTransition(
                   turns: animationRotation,
@@ -257,12 +302,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
                             radius: dotRadiusSmall,
                             color: _colorDotSmall,
                           )),
-                      // )),Transform.translate(
-                      // offset: Offset(radius * cos(10*pi/4),radius * sin(10*pi/4)),
-                      // child: Dot(
-                      //   radius: SizeConfig.scaleTextFont(5.0),
-                      //   color: Colors.orange,
-                      // )),
                     ],
                   ),
                 ),
@@ -285,7 +324,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
               fontWeight: FontWeight.w400,
               fontSize: SizeConfig.scaleWidth(30),
             ),
-                  ],
+          ],
         ));
   }
 }
@@ -300,9 +339,9 @@ class Dot extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: this.radius,
-        height: this.radius,
-        decoration: BoxDecoration(color: this.color, shape: BoxShape.circle),
+        width: radius,
+        height: radius,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       ),
     );
   }

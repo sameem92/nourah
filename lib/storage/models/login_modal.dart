@@ -7,8 +7,8 @@ class LoginModal {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['accesstoken'] = this.accesstoken;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['accesstoken'] = accesstoken;
     return data;
   }
 }

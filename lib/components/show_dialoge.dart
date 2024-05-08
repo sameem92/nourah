@@ -4,7 +4,7 @@ import 'package:producer_family_app/style/style_button.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_text.dart';
 
-void ShowDialoge(
+void showDialoge(
   context, {
   required String message1,
   required String message2,
@@ -19,11 +19,10 @@ void ShowDialoge(
 }) {
   showDialog(
       context: context,
-
+    // useRootNavigator: false,
       builder: (context) {
         return AlertDialog(
           scrollable: true,
-
           backgroundColor: Colors.white,
           titlePadding: EdgeInsets.zero,
           actionsPadding: EdgeInsets.zero,
@@ -58,7 +57,7 @@ void ShowDialoge(
                   maxLines: 4,
                   height: 1.7,
                 ),
-                message3!, divider_app(),
+                message3!, dividerApp(),
                 // Spacer(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -93,7 +92,7 @@ void ShowDialoge(
             ),
           ),
         );
-      });
+      },);
 }
 
 void imageDialoge(context, {required String imageProduct}) {
@@ -102,6 +101,9 @@ void imageDialoge(context, {required String imageProduct}) {
       builder: (context) {
         return AlertDialog(
           contentPadding: EdgeInsets.zero,
+          insetPadding: EdgeInsets.zero,
+
+          elevation: 200,
           content: Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(
@@ -109,17 +111,19 @@ void imageDialoge(context, {required String imageProduct}) {
                 ),
                 boxShadow: [
                   BoxShadow(
-                      color: kSecondaryColor.withOpacity(.1),
+                      color: kGrey.withOpacity(.1),
                       blurRadius: 2,
-                      spreadRadius: 1)
+                      spreadRadius: 4,)
                 ],
-                color: Colors.transparent),
-            width: 300,
-            height: 300,
-            child: image_container(
+                color: Colors.transparent,),
+            width: SizeConfig.scaleWidth(400),
+            height: SizeConfig.scaleHeight(400),
+            padding: EdgeInsets.zero,
+            margin: EdgeInsets.zero,
+            child: ImageContainer(
               imageProduct,
             ),
           ),
         );
-      });
+      },);
 }

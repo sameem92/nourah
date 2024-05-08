@@ -5,7 +5,7 @@ import 'package:producer_family_app/style/style_text.dart';
 
 
 
-Column header_app(BuildContext context,{required String title}) {
+Column headerApp(BuildContext context,{required String title}) {
   return Column(
     children: [
       SizedBox(
@@ -19,7 +19,7 @@ Column header_app(BuildContext context,{required String title}) {
       ),
       Stack(
         children: [
-          divider_app(),
+          dividerApp(),
           Divider(
             color: kSpecialColor,
             height: SizeConfig.scaleHeight(20),

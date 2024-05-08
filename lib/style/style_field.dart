@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_colors.dart';
-import 'package:form_field_validator/form_field_validator.dart';
 
 class StyleField extends StatefulWidget {
   final String? title;
@@ -25,7 +25,7 @@ class StyleField extends StatefulWidget {
   final String? prefixText;
   // late Function validator;
   final String hintText;
-  String initialValue;
+  final String initialValue;
   final bool? filled;
   final bool? enabledBorderBool;
   final bool? filledBool;
@@ -34,18 +34,19 @@ class StyleField extends StatefulWidget {
   final Icon? prefixIcon;
   // final IconButton suffixIcon;
   final Icon? icon;
-  late double? padding;
+  final double? padding;
   final Function? onChanged;
+  final Function? onPressedClose;
   final Function? onSaved;
   final validator;
 
-  StyleField({
+  const StyleField({
     this.title,
     this.maxLines = 1,
     this.width = 370,
     this.height = 40,
     this.keyboardType,
-    this.fontSize = 18,
+    this.fontSize = 20,
     this.textAlign = TextAlign.center,
     this.obscureText = false,
     this.controller,
@@ -56,6 +57,7 @@ class StyleField extends StatefulWidget {
     this.filledBool = true,
     this.textDirection,
     this.onChanged,
+    this.onPressedClose,
     this.onSaved,
     this.suffixText,
     this.prefixText,
@@ -77,13 +79,14 @@ class StyleField extends StatefulWidget {
 }
 
 class _StyleFieldState extends State<StyleField> {
-
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: SizeConfig.scaleWidth(360),
       child: TextFormField(
+        inputFormatters: [
+          FilteringTextInputFormatter.deny(RegExp("[١،٢،٣،٤،٥،٦،٧،٨،٩،٠]")),
+        ],
 
         textInputAction: TextInputAction.done,
         obscureText: widget.obscureText,
@@ -94,19 +97,25 @@ class _StyleFieldState extends State<StyleField> {
         validator: MultiValidator([
           if (widget.isEmail)
             EmailValidator(
-                errorText:
-                    AppLocalizations.of(context)!.theFormOfEmailIsNotCorrect),
+              errorText:
+                  AppLocalizations.of(context)!.theFormOfEmailIsNotCorrect,
+            ),
           if (widget.isRequired)
             RequiredValidator(
-                errorText: AppLocalizations.of(context)!.theFieldIsRequired),
+              errorText: AppLocalizations.of(context)!.theFieldIsRequired,
+            ),
           if (widget.isPhone)
-            MinLengthValidator(10,
-                errorText: AppLocalizations.of(context)!
-                    .theNumberOfFieldsIsNotLessThan10),
+            MinLengthValidator(
+              10,
+              errorText: AppLocalizations.of(context)!
+                  .theNumberOfFieldsIsNotLessThan10,
+            ),
           if (widget.isPhone)
-            MaxLengthValidator(15,
-                errorText: AppLocalizations.of(context)!
-                    .theNumberOfFieldsIsNotMoreThan10,),
+            MaxLengthValidator(
+              15,
+              errorText: AppLocalizations.of(context)!
+                  .theNumberOfFieldsIsNotMoreThan10,
+            ),
         ]),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         textAlignVertical: TextAlignVertical.center,
@@ -115,17 +124,17 @@ class _StyleFieldState extends State<StyleField> {
         textDirection: Localizations.localeOf(context).languageCode == "ar"
             ? TextDirection.rtl
             : TextDirection.ltr,
-        cursorColor:  kSecondaryColor.withOpacity(.8),
+        cursorColor: kSpecialColor,
 
         textAlign: TextAlign.center,
         cursorHeight: SizeConfig.scaleTextFont(27),
         style: TextStyle(
-
-
-            color:  kTextColor,
-            fontSize: SizeConfig.scaleTextFont(widget.fontSize),
-            // fontWeight: FontWeight.w400,
-            fontFamily:"ElMessiri",            overflow: TextOverflow.ellipsis),
+          color: kTextColor,
+          fontSize: SizeConfig.scaleTextFont(widget.fontSize),
+          // fontWeight: FontWeight.w400,
+          fontFamily: "ElMessiri",
+          overflow: TextOverflow.ellipsis,
+        ),
         decoration: InputDecoration(
           hintText: widget.hintText,
 
@@ -135,54 +144,58 @@ class _StyleFieldState extends State<StyleField> {
                   : "",
           fillColor: Colors.white,
 
-          contentPadding:
-              EdgeInsets.only(
-                left: SizeConfig.scaleWidth(15),
-                right: SizeConfig.scaleWidth(15),
-                top: SizeConfig.scaleHeight(5),
-                bottom:SizeConfig.scaleHeight(5),
-              ),
+          contentPadding: EdgeInsets.only(
+            left: SizeConfig.scaleWidth(15),
+            right: SizeConfig.scaleWidth(15),
+            top: SizeConfig.scaleHeight(5),
+            bottom: SizeConfig.scaleHeight(5),
+          ),
           isDense: true,
           prefixText: widget.prefixText,
           icon: widget.icon,
           suffixText: widget.suffixText,
           suffixStyle: TextStyle(
-              fontFamily:"ElMessiri",
-              color: kTextColor,
-              fontSize: SizeConfig.scaleWidth(widget.fontSize),
-              overflow: TextOverflow.visible),
+            fontFamily: "ElMessiri",
+            color: kTextColor,
+            fontSize: SizeConfig.scaleWidth(widget.fontSize),
+            overflow: TextOverflow.visible,
+          ),
           prefixIcon: widget.prefixIcon,
           suffixIcon:
               widget.controller!.text.isEmpty || widget.controller!.text == ''
-                  ? Text('')
-                  : IconButton(padding: EdgeInsets.zero,
-                      icon: Icon(Icons.close),
+                  ? const Text('')
+                  : IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.close),
                       onPressed: () {
                         widget.controller!.clear();
+                        widget.onPressedClose != null
+                            ? widget.onPressedClose!()
+                            : print('no search close');
                         FocusScope.of(context).unfocus();
                       },
                     ),
           prefixStyle: TextStyle(
-              fontFamily:"ElMessiri",
-              color: kTextColor,
-              fontSize: SizeConfig.scaleWidth(widget.fontSize),
-              overflow: TextOverflow.visible),
+            fontFamily: "ElMessiri",
+            color: kTextColor,
+            fontSize: SizeConfig.scaleWidth(widget.fontSize),
+            overflow: TextOverflow.visible,
+          ),
           hintStyle: TextStyle(
-
-              color:  kTextColor,
-              fontSize: SizeConfig.scaleWidth(widget.fontSize),
-              fontWeight: FontWeight.w400,
-              fontFamily:"ElMessiri",
-              overflow: TextOverflow.visible),
-          filled:widget.filledBool==true? true:false,
+            color: kTextColor,
+            fontSize: SizeConfig.scaleWidth(widget.fontSize),
+            fontWeight: FontWeight.w400,
+            fontFamily: "ElMessiri",
+            overflow: TextOverflow.visible,
+          ),
+          filled: widget.filledBool == true ? true : false,
           isCollapsed: false,
           labelStyle: TextStyle(
-
-            color:  kTextColor,
+            color: kTextColor,
             overflow: TextOverflow.visible,
             fontSize: SizeConfig.scaleWidth(widget.fontSize),
             fontWeight: FontWeight.w400,
-            fontFamily:"ElMessiri",
+            fontFamily: "ElMessiri",
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius),
@@ -194,15 +207,14 @@ class _StyleFieldState extends State<StyleField> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius),
             borderSide: BorderSide(
-              
-              color: kSecondaryColor.withOpacity(.5),
+              color: kSpecialColor.withOpacity(.5),
               width: SizeConfig.scaleWidth(1),
             ),
           ),
           disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius),
             borderSide: BorderSide(
-              color: kSecondaryColor.withOpacity(.5),
+              color: kSpecialColor.withOpacity(.5),
               width: SizeConfig.scaleWidth(1),
             ),
           ),
@@ -215,32 +227,67 @@ class _StyleFieldState extends State<StyleField> {
               width: SizeConfig.scaleWidth(1),
             ),
           ),
-          enabledBorder:widget.enabledBorderBool==true? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: BorderSide(
-              color: kSecondaryColor.withOpacity(.1),
-              width: SizeConfig.scaleWidth(1),
-            ),
-          ):InputBorder.none,
+          enabledBorder: widget.enabledBorderBool == true
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  borderSide: BorderSide(
+                    color: kSpecialColor.withOpacity(.1),
+                    width: SizeConfig.scaleWidth(1),
+                  ),
+                )
+              : InputBorder.none,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius),
             borderSide: BorderSide(
-              color: kSecondaryColor.withOpacity(.5),
+              color: kSpecialColor.withOpacity(.5),
               width: SizeConfig.scaleWidth(1),
             ),
           ),
         ),
         autocorrect: false,
 
-        onChanged: (value) {
+        onChanged: (String value) {
           widget.onChanged;
         },
-        onSaved: (value) {
+        onSaved: (String? value) {
           widget.onSaved;
         },
         // initialValue:widget.initialValue ,
       ),
     );
     // );
+  }
+
+  String replaceFarsiNumber(String input) {
+    const List<String> english = [
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9'
+    ];
+    const List<String> farsi = [
+      '۰',
+      '۱',
+      '۲',
+      '۳',
+      '۴',
+      '۵',
+      '۶',
+      '۷',
+      '۸',
+      '۹'
+    ];
+
+    for (int i = 0; i < farsi.length; i++) {
+      input = input.replaceAll(farsi[i], english[i]);
+    }
+
+    return input;
   }
 }

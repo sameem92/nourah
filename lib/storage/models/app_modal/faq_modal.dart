@@ -9,19 +9,19 @@ class BaseResponse {
     if (json['data'] != null) {
       data = <FaqModal>[];
       json['data'].forEach((v) {
-        data?.add(new FaqModal.fromJson(v));
+        data?.add(FaqModal.fromJson(v));
       });
     }
     code = json['code'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data?.map((v) => v.toJson()).toList();
     }
-    data['code'] = this.code;
+    data['code'] = code;
     return data;
   }
 }
@@ -42,19 +42,19 @@ class FaqModal {
     if (json['questions'] != null) {
       questions = <QuestionsModal>[];
       json['questions'].forEach((v) {
-        questions?.add(new QuestionsModal.fromJson(v));
+        questions?.add(QuestionsModal.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['arname'] = this.arname;
-    data['enname'] = this.enname;
-    data['created_at'] = this.createdAt;
-    if (this.questions != null) {
-      data['questions'] = this.questions?.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['arname'] = arname;
+    data['enname'] = enname;
+    data['created_at'] = createdAt;
+    if (questions != null) {
+      data['questions'] = questions?.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -86,16 +86,16 @@ class QuestionsModal {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['category'] = this.category;
-    data['arquestion'] = this.arquestion;
-    data['enquestion'] = this.enquestion;
-    data['aranswer'] = this.aranswer;
-    data['enanswer'] = this.enanswer;
-    data['deleted'] = this.deleted;
-    data['suspensed'] = this.suspensed;
-    data['created_at'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['category'] = category;
+    data['arquestion'] = arquestion;
+    data['enquestion'] = enquestion;
+    data['aranswer'] = aranswer;
+    data['enanswer'] = enanswer;
+    data['deleted'] = deleted;
+    data['suspensed'] = suspensed;
+    data['created_at'] = createdAt;
     return data;
   }
 }

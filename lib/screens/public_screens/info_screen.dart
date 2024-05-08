@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_getx_widget.dart';
 import 'package:producer_family_app/components/headers/app_bar_family.dart';
@@ -6,6 +7,8 @@ import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_text.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:html/parser.dart';
+
 
 class InfoScreen extends StatefulWidget {
   @override
@@ -13,10 +16,11 @@ class InfoScreen extends StatefulWidget {
 }
 
 class _InfoScreenState extends State<InfoScreen> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWhite(
+      appBar: appBarWhite(
         context,
         title: AppLocalizations.of(context)!.info,
         onPressed: () {},
@@ -42,27 +46,32 @@ class _InfoScreenState extends State<InfoScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                    color: kSecondaryColor.withOpacity(.1),
-                    blurRadius: 5,
-                    spreadRadius: 4)
+                    color: kGrey.withOpacity(.1),
+                    blurRadius: 2,
+                    spreadRadius: 1)
               ],
               color: Colors.white),
           alignment: Alignment.topCenter,
-          child: GetX<getAboutUsGetx>(
-              init: getAboutUsGetx(
-                  Language: Localizations.localeOf(context).languageCode == "ar"
+          child: GetX<GetNetworkGetx>(
+    init: GetNetworkGetx(),
+    builder: (GetNetworkGetx network) {
+    return
+    network.connectionType.value==0?noContent(context,  AppLocalizations.of(context)!.noInternet):
+    GetX<GetAboutUsGetx>(
+              init: GetAboutUsGetx(
+                  language: Localizations.localeOf(context).languageCode == "ar"
                       ? "ar"
                       : "en"),
-              builder: (getAboutUsGetx controller) {
+              builder: (GetAboutUsGetx controller) {
                 return controller.isLoading.value
-                    ? Center(child:  indicator_nourah_loading())
+                    ? Center(child:  indicatorNourahLoading())
                     : Center(
                         heightFactor: 1.5,
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
                               StyleText(
-                                '${controller.aboutUs['about'] ?? " "}',
+                                parse(controller.aboutUs['about'] ?? " ").body?.text??"",
                                 maxLines: 300,
                                 height: 1.6,
                                 letterSpacing: 1.3,
@@ -72,7 +81,7 @@ class _InfoScreenState extends State<InfoScreen> {
                           ),
                         ),
                       );
-              }),
+              });})
         ),
       ),
     );

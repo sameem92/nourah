@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_text.dart';
 
+class RowProduct extends StatelessWidget {
+  final String text1;
+  final String text2;
+  final String text3;
+  final String text4;
+  final bool notFirst;
 
-
-
-class rowProduct extends StatelessWidget {
-   String text1 ="";
-   String text2 ="";
-   String text3 ="";
-    String text4 ="";
-    bool notFirst =true;
-
-
-  rowProduct({required this.text1, required this.text2, required this.text3, required this.text4,
-    this.notFirst=true});
+  RowProduct({
+    required this.text1,
+    required this.text2,
+    required this.text3,
+    required this.text4,
+    this.notFirst = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,38 +50,47 @@ class rowProduct extends StatelessWidget {
               ),
               Expanded(
                 flex: 3,
-
                 child: StyleText(
                   text4,
                   textAlign: TextAlign.center,
-
                 ),
               ),
             ],
           ),
-          if(notFirst == true)
-SizedBox(height: hSpace,),
-          if(notFirst == true)
-
-            divider_app(
-            height: 0,
-          ),
-
+          if (notFirst == true)
+            SizedBox(
+              height: hSpace,
+            ),
+          if (notFirst == true)
+            dividerApp(
+              height: 0,
+            ),
         ],
       ),
     );
   }
 }
-class rowProductTitle extends StatelessWidget {
-  String text1 ="";
-  String text2 ="";
-  String text3 ="";
-  String text4 ="";
-  Color textColor=Color(0xFF6F615D) ;
-bool notFirst =true;
 
+class RowProductTitle extends StatelessWidget {
+  final String text1;
+  final String text2;
+  final String text3;
+  final String text4;
+  final String text5;
+  final String text6;
+  final Color textColor = const Color(0xFF6F615D);
+  final Color textColor2 = const Color(0xFF6F615D);
+  final bool notFirst;
 
-  rowProductTitle({required this.text1,textColor, required this.text2,this.notFirst=true,required this.text3,required this.text4});
+  const RowProductTitle(
+      {required this.text1,
+      textColor,
+      required this.text2,
+      this.notFirst = true,
+      required this.text3,
+      required this.text4,
+      this.text5 = '',
+      this.text6 = ''});
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +100,6 @@ bool notFirst =true;
         bottom: hSpaceSmall,
       ),
       child: Column(
-
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -101,14 +110,15 @@ bool notFirst =true;
                   text1,
                   textAlign: TextAlign.center,
                   textColor: textColor,
+                  maxLines: 2,
                 ),
               ),
               Expanded(
                 flex: 2,
                 child: StyleText(
                   text2,
-                  textColor: textColor,
-
+                  textColor: textColor2,
+                  maxLines: 2,
                 ),
               ),
               Expanded(
@@ -116,7 +126,7 @@ bool notFirst =true;
                 child: StyleText(
                   text3,
                   textColor: textColor,
-
+                  maxLines: 2,
                 ),
               ),
               Expanded(
@@ -124,19 +134,41 @@ bool notFirst =true;
                 child: StyleText(
                   text4,
                   textColor: textColor,
-
+                  maxLines: 2,
                 ),
               ),
+              if (text5 != "")
+                Expanded(
+                  flex: 2,
+                  child: StyleText(
+                    text5,
+                    textColor: textColor,
+                    maxLines: 2,
+                  ),
+                )
+              else
+                Column(),
+              if (text6 != "")
+                Expanded(
+                  flex: 2,
+                  child: StyleText(
+                    text6,
+                    textColor: textColor,
+                    maxLines: 2,
+                  ),
+                )
+              else
+                Column(),
             ],
           ),
-          if(notFirst == true)
-            SizedBox(height: hSpace,),
-          if(notFirst == true)
-
-            divider_app(
+          if (notFirst == true)
+            SizedBox(
+              height: hSpace,
+            ),
+          if (notFirst == true)
+            dividerApp(
               height: 0,
             ),
-
         ],
       ),
     );

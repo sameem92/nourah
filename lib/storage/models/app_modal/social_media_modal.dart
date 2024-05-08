@@ -9,19 +9,19 @@ class BaseResponseModal {
     if (json['data'] != null) {
       data = <SocialMediaModal>[];
       json['data'].forEach((v) {
-        data?.add(new SocialMediaModal.fromJson(v));
+        data?.add(SocialMediaModal.fromJson(v));
       });
     }
     code = json['code'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data?.map((v) => v.toJson()).toList();
     }
-    data['code'] = this.code;
+    data['code'] = code;
     return data;
   }
 }
@@ -32,14 +32,14 @@ class SocialMediaModal {
 
 
   SocialMediaModal.fromJson(Map<String, dynamic> json) {
-    link = json['link'];
-    icon = json['icon'];
+    link = json['link']??"";
+    icon = json['icon']??"";
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['link'] = this.link;
-    data['icon'] = this.icon;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['link'] = link;
+    data['icon'] = icon;
     return data;
   }
 }

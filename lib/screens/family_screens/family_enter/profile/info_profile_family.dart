@@ -1,19 +1,24 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_getx_widget.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:producer_family_app/components/headers/app_bar_family.dart';
 import 'package:producer_family_app/components/show_helper.dart';
 import 'package:producer_family_app/storage/api/login_profile_controller.dart';
+import 'package:producer_family_app/storage/notificatons.dart';
+import 'package:producer_family_app/storage/providersAndGetx/language_change.dart';
 import 'package:producer_family_app/storage/providersAndGetx/login_profile_getx.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_button.dart';
 import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_field.dart';
 import 'package:producer_family_app/style/style_text.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class InfoProfileFamily extends StatefulWidget {
   @override
@@ -34,6 +39,8 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
   @override
   void initState() {
     super.initState();
+    managenotificationAction(context);
+
     _nameinfo = TextEditingController(
       text: controller.profile["name"] ?? "",
     );
@@ -43,7 +50,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
       text: controller.profile["email"] ?? "",
     );
     _arabicDescription = TextEditingController(
-      text: controller.profile["ennotes"] ?? "",
+      text: controller.profile["notes"] ?? "",
     );
     _englishDescription = TextEditingController(
       text: controller.profile["ennotes"] ?? "",
@@ -68,7 +75,6 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
 
   @override
   void dispose() {
-    super.dispose();
     _nameinfo.dispose();
     _phoneNumberinfo.dispose();
     _theminimumorder.dispose();
@@ -79,22 +85,26 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
     _newPassword.dispose();
 
     _confirmNewPassword.dispose();
+    super.dispose();
   }
 
   bool progress = false;
   bool done = false;
   getProfileGetx controller = Get.find();
 
+  CroppedFile? _croppedFile2;
+  CroppedFile? _croppedFile1;
+
   PickedFile? _pickedFile2;
   PickedFile? _pickedFile1;
   ImagePicker imagePicker = ImagePicker();
-  var _formKey1 = GlobalKey<FormState>();
-  var _formKey2 = GlobalKey<FormState>();
+  final _formKey1 = GlobalKey<FormState>();
+  final _formKey2 = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWhite(
+      appBar: appBarWhite(
         context,
         title: AppLocalizations.of(context)!.familyInfo,
         onPressed: () {},
@@ -104,11 +114,13 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
           child: Form(
             child: controller.isLoading.value
                 ? Column(
-                  children: [
-                    SizedBox(height: SizeConfig.scaleHeight(400),),
-                    Center(child: indicator_nourah_loading()),
-                  ],
-                )
+                    children: [
+                      SizedBox(
+                        height: SizeConfig.scaleHeight(400),
+                      ),
+                      Center(child: indicatorNourahLoading()),
+                    ],
+                  )
                 : Column(
                     children: [
                       SizedBox(
@@ -123,13 +135,18 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                 onTap: () async {
                                   await pickImage1();
                                 },
-                                child: _pickedFile1 != null
-                                    ? Image.file(File(_pickedFile1!.path),
+                                child: _croppedFile1 != null
+                                    ? Image.file(File(_croppedFile1!.path),
                                         width: double.infinity,
                                         fit: BoxFit.cover)
-                                    : image_container(
-                                        controller.profile["cover_image"] ??
-                                            ''),
+                                    : controller.profile["cover_image"] != null
+                                        ? ImageContainer(
+                                            controller.profile["cover_image"] ??
+                                                "")
+                                        : Image.asset(
+                                            'assets/images/cover.jpeg',
+                                            fit: BoxFit.cover,
+                                          ),
                               ),
                             ),
                             PositionedDirectional(
@@ -139,7 +156,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                               child: Container(
                                 height: SizeConfig.scaleHeight(140),
                                 width: SizeConfig.scaleWidth(130),
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: kBackgroundColor,
                                   shape: BoxShape.circle,
                                 ),
@@ -153,16 +170,26 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                 onTap: () async {
                                   await pickImage2();
                                 },
-                                child: _pickedFile2 != null
-                                    ? CircleAvatar(
-                                        backgroundImage:
-                                            AssetImage(_pickedFile2!.path),
-                                        radius: SizeConfig.scaleTextFont(60))
-                                    : image_circle(
-                                        imageString:
-                                            controller.profile["image"] ?? '',
-                                        radius: 60,
-                                      ),
+                                child: _croppedFile2 != null
+                                    ? FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: CircleAvatar(
+                                            foregroundImage:
+                                                AssetImage(_croppedFile2!.path),
+                                            radius:
+                                                SizeConfig.scaleTextFont(60)),
+                                      )
+                                    : controller.profile["image"] != null
+                                        ? ImageCircle(
+                                            imageString:
+                                                controller.profile["image"] ??
+                                                    '',
+                                            radius: 60,
+                                          )
+                                        : Image.asset(
+                                            'assets/images/cover.jpeg',
+                                            fit: BoxFit.cover,
+                                          ),
                               ),
                             ),
                           ],
@@ -188,7 +215,8 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                     title: AppLocalizations.of(context)!
                                         .register_family_name,
                                     controller: _nameinfo,
-                                    prefixIcon: Icon(Icons.family_restroom),
+                                    prefixIcon:
+                                        const Icon(Icons.family_restroom),
                                     isRequired: true,
                                   ),
                                   SizedBox(
@@ -196,7 +224,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                   ),
                                   StyleField(
                                     controller: _phoneNumberinfo,
-                                    prefixIcon: Icon(Icons.phone_android),
+                                    prefixIcon: const Icon(Icons.phone_android),
                                     title: AppLocalizations.of(context)!
                                         .labephoneNumberinfo,
                                     keyboardType: TextInputType.phone,
@@ -208,7 +236,8 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                   ),
                                   StyleField(
                                     controller: _emailinfo,
-                                    prefixIcon: Icon(Icons.email_outlined),
+                                    prefixIcon:
+                                        const Icon(Icons.email_outlined),
                                     title:
                                         AppLocalizations.of(context)!.emailinfo,
                                     keyboardType: TextInputType.emailAddress,
@@ -224,7 +253,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                       controller: _arabicDescription,
                                       hintText:
                                           controller.profile["notes"] ?? "",
-                                      prefixIcon: Icon(Icons.event_note),
+                                      prefixIcon: const Icon(Icons.event_note),
                                       title: AppLocalizations.of(context)!
                                           .arabicDescription,
                                       maxLines: 10,
@@ -239,7 +268,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                     child: StyleField(
                                       controller: _englishDescription,
                                       prefixIcon:
-                                          Icon(Icons.event_note_outlined),
+                                          const Icon(Icons.event_note_outlined),
                                       title: AppLocalizations.of(context)!
                                           .englishDescription,
                                       maxLines: 10,
@@ -253,38 +282,53 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                     controller: _theminimumorder,
                                     keyboardType: TextInputType.number,
                                     // suffixText: AppLocalizations.of(context)!.reyal,
-                                    prefixIcon: Icon(Icons.event_note_outlined),
+                                    prefixIcon:
+                                        const Icon(Icons.event_note_outlined),
                                     title: AppLocalizations.of(context)!
                                         .theminimumorder,
-                                    isRequired: true,
+                                    // isRequired: true,
                                   ),
-                                  SizedBox(
-                                    height: hSpaceLarge,
-                                  ),
-                                  StyleButton(
-                                    AppLocalizations.of(context)!.saveinfo,
-                                    onPressed: () async {
-                                      FocusScope.of(context).unfocus();
-                                      bool isValidate =
-                                          _formKey1.currentState!.validate();
-                                      {
-                                        if (isValidate) {
-                                          setState(() {
-                                            progress = true;
-                                            done = false;
-                                          });
-                                          await updateProfile();
-                                          setState(() {
-                                            progress = false;
-                                            done = true;
-                                          });
+                                  progress != true
+                                      ? SizedBox(
+                                          height: hSpaceLarge,
+                                        )
+                                      : const SizedBox(),
+                                  progress != true
+                                      ? StyleButton(
+                                          AppLocalizations.of(context)!
+                                              .saveinfo,
+                                          onPressed: () async {
+                                            FocusScope.of(context).unfocus();
+                                            bool isValidate = _formKey1
+                                                .currentState!
+                                                .validate();
+                                            {
+                                              if (isValidate) {
+                                                if (!mounted) {
+                                                } else {
+                                                  setState(() {
+                                                    progress = true;
+                                                    done = false;
+                                                  });
+                                                }
+                                                await updateProfile();
+                                                if (updateProfile() == true) {
+                                                  setState(() {
+                                                    progress = false;
+                                                    done = true;
+                                                  });
+                                                } else {
+                                                  setState(() {
+                                                    progress = false;
+                                                  });
+                                                }
 
-                                          // Navigator.pop(context);
-                                        }
-                                        ;
-                                      }
-                                    },
-                                  ),
+                                                // Navigator.pop(context);
+                                              }
+                                            }
+                                          },
+                                        )
+                                      : const SizedBox(),
                                   Column(
                                     children: [
                                       SizedBox(
@@ -297,10 +341,10 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                             fit: StackFit.expand,
                                             children: [
                                               progress == true
-                                                  ? indicator_nourah_loading()
+                                                  ? indicatorNourahLoadingSpecial()
                                                   : Column(),
                                               done == true
-                                                  ? indicator_nourah_done()
+                                                  ? indicatorNourahDone()
                                                   : Column()
                                             ],
                                           ))
@@ -309,7 +353,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                 ],
                               ),
                             ),
-                            divider_app(),
+                            dividerApp(),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -322,7 +366,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                     value: 1,
                                     activeColor: kConfirm,
                                     groupValue: controller.profile['available'],
-                                    onChanged: (Object? value) {
+                                    onChanged: (Object? value) async {
                                       if (mounted) {
                                         setState(() {
                                           value =
@@ -331,9 +375,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                         });
                                       }
                                       if (mounted) {
-                                        setState(() async {
-                                          await changeValidity();
-                                        });
+                                        await changeValidity();
                                       }
                                     },
                                   ),
@@ -351,7 +393,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                       value: 0,
                                       groupValue:
                                           controller.profile['available'],
-                                      onChanged: (Object? value) {
+                                      onChanged: (Object? value) async {
                                         if (mounted) {
                                           setState(() {
                                             value =
@@ -360,15 +402,13 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                           });
                                         }
                                         if (mounted) {
-                                          setState(() async {
-                                            await changeValidity();
-                                          });
+                                          await changeValidity();
                                         }
                                       }),
                                 ),
                               ],
                             ),
-                            divider_app(),
+                            dividerApp(),
                             Form(
                               key: _formKey2,
                               child: Column(
@@ -387,7 +427,8 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                     controller: _password,
                                     title:
                                         AppLocalizations.of(context)!.password,
-                                    prefixIcon: Icon(Icons.password_sharp),
+                                    prefixIcon:
+                                        const Icon(Icons.password_sharp),
                                     obscureText: true,
                                     isRequired: true,
                                   ),
@@ -398,7 +439,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                     controller: _newPassword,
                                     title: AppLocalizations.of(context)!
                                         .newPassword,
-                                    prefixIcon: Icon(Icons.password),
+                                    prefixIcon: const Icon(Icons.password),
                                     obscureText: true,
                                     isRequired: true,
                                   ),
@@ -409,8 +450,8 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                     controller: _confirmNewPassword,
                                     title: AppLocalizations.of(context)!
                                         .confirmNewPassword,
-                                    prefixIcon:
-                                        Icon(Icons.confirmation_num_outlined),
+                                    prefixIcon: const Icon(
+                                        Icons.confirmation_num_outlined),
                                     obscureText: true,
                                     isRequired: true,
                                   ),
@@ -427,9 +468,6 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
                                     _formKey2.currentState!.validate();
                                 if (isValidate) {
                                   await performChangePassword();
-                                  _password.clear();
-                                  _newPassword.clear();
-                                  _confirmNewPassword.clear();
                                   FocusScope.of(context).unfocus();
                                 }
                               },
@@ -461,7 +499,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
         _confirmNewPassword.text == _newPassword.text) {
       return true;
     }
-    Helper(
+    helper(
         context: context,
         message: AppLocalizations.of(context)!.pleaseEnterCorrectData,
         error: true);
@@ -469,8 +507,7 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
   }
 
   Future changePassword() async {
-
-    await loginAndProfileController().changePasswordController(context,
+    await LoginAndProfileController().changePasswordController(context,
         language:
             Localizations.localeOf(context).languageCode == "ar" ? "ar" : "en",
         password: _newPassword.text,
@@ -487,25 +524,86 @@ class _InfoProfileFamilyState extends State<InfoProfileFamily> {
 
   Future pickImage2() async {
     _pickedFile2 = await imagePicker.getImage(source: ImageSource.gallery);
-    if (_pickedFile2 != null) if (mounted) {
-      setState(() {});
+    if (_pickedFile2 != null) {
+      CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: _pickedFile2!.path,
+        cropStyle: CropStyle.circle,
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 70,
+        aspectRatio: const CropAspectRatio(ratioX: 60, ratioY: 60),
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+        ],
+        uiSettings: [
+          AndroidUiSettings(
+              toolbarTitle: 'Cropper',
+              toolbarColor: kSpecialColor,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false),
+          IOSUiSettings(
+            title: 'Cropper',
+            aspectRatioLockDimensionSwapEnabled: true,
+            aspectRatioLockEnabled: true,
+            rotateButtonsHidden: true,
+            rotateClockwiseButtonHidden: true,
+          ),
+        ],
+      );
+      if (!mounted) {
+      } else {
+        setState(() {
+          _croppedFile2 = croppedFile;
+        });
+      }
     }
   }
 
   Future pickImage1() async {
     _pickedFile1 = await imagePicker.getImage(source: ImageSource.gallery);
     if (_pickedFile1 != null) if (mounted) {
-      setState(() {});
+      CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: _pickedFile1!.path,
+        cropStyle: CropStyle.rectangle,
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 100,
+        aspectRatio: const CropAspectRatio(ratioX: 3, ratioY: 1.3),
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+        ],
+        uiSettings: [
+          AndroidUiSettings(
+              toolbarTitle: 'Cropper',
+              toolbarColor: kSpecialColor,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false),
+          IOSUiSettings(
+            title: 'Cropper',
+            aspectRatioLockDimensionSwapEnabled: true,
+            aspectRatioLockEnabled: true,
+            rotateButtonsHidden: true,
+            rotateClockwiseButtonHidden: true,
+          ),
+        ],
+      );
+      setState(() {
+        _croppedFile1 = croppedFile;
+      });
     }
   }
 
   Future updateProfile() async {
     await controller.updateProfile(
         context: context,
-        path2: _pickedFile2 != null ? _pickedFile2!.path : null,
-        path1: _pickedFile1 != null ? _pickedFile1!.path : null,
+        path2: _croppedFile2 != null ? _croppedFile2!.path : null,
+        path1: _croppedFile1 != null ? _croppedFile1!.path : null,
         notes: _arabicDescription.text,
         ennotes: _englishDescription.text,
+        lat: Provider.of<LatNotiferFamily>(context, listen: false).latFamily,
+        lng: Provider.of<LongNotiferFamily>(context, listen: false).longFamily,
+        address: Provider.of<stringNotiferFamily>(context, listen: false)
+            .addressFamily,
         minimum_order: _theminimumorder.text,
         name: _nameinfo.text,
         email: _emailinfo.text,

@@ -8,24 +8,24 @@ class NotificationsModal {
  late String createdAt;
 
   NotificationsModal.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    userId = json['user_id'];
-    notification = json['notification'];
-    ennotification = json['ennotification'];
-    readed = json['readed'];
-    deleted = json['deleted'];
-    createdAt = json['created_at'];
+    id = json['id']??0;
+    userId = json['user_id']??0;
+    notification = json['notification']??"";
+    ennotification = json['ennotification']??"";
+    readed = json['readed']??0;
+    deleted = json['deleted']??0;
+    createdAt = json['created_at']??"";
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['notification'] = this.notification;
-    data['ennotification'] = this.ennotification;
-    data['readed'] = this.readed;
-    data['deleted'] = this.deleted;
-    data['created_at'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['notification'] = notification;
+    data['ennotification'] = ennotification;
+    data['readed'] = readed;
+    data['deleted'] = deleted;
+    data['created_at'] = createdAt;
     return data;
   }
 }

@@ -4,7 +4,7 @@ import 'package:producer_family_app/storage/shared_preferences_controller.dart';
 class LanguageChangeNotifer extends ChangeNotifier {
   String language =SharedPreferencesController().getlanguage() ;
   Future changeLanguage(String newLanguage) async{
-    this.language = newLanguage;
+    language = newLanguage;
   // await  SharedPreferencesController().changeLanguage(locale.languageCode);
     notifyListeners();
   }
@@ -86,7 +86,7 @@ class stringNotiferUser extends ChangeNotifier {
 class stringNotiferDriver extends ChangeNotifier {
   String addressDriver ="";
 
-  void changeStringUser(String addressDriver) {
+  void changeStringDriver(String addressDriver) {
     this.addressDriver= addressDriver;
     notifyListeners();
   }
@@ -104,6 +104,57 @@ class stringNotiferSearch extends ChangeNotifier {
 }
 
 
+class intCategoryId extends ChangeNotifier {
+  int categoryId =0;
+
+  void changeCategoryId(int categoryId) {
+    this.categoryId= categoryId;
+    notifyListeners();
+  }
+}
 
 
+class intIndexTabHome extends ChangeNotifier {
+  int intIndex =0;
+
+  void changeIntIndexTabHome(int intIndex) {
+    this.intIndex= intIndex;
+    notifyListeners();
+  }
+}
+
+class intIndexorder extends ChangeNotifier {
+  int? intIndex;
+
+  void changeIntIndexorder(int intIndex) {
+    this.intIndex= intIndex;
+    notifyListeners();
+  }
+}
+
+class intIndexProfile extends ChangeNotifier {
+  int? intIndex;
+
+  void changeIntIndexProfile(int intIndex) {
+    this.intIndex= intIndex;
+    notifyListeners();
+  }
+}
+
+class intOrderToConfirmFamily extends ChangeNotifier {
+  int intIndex =0;
+
+  void changeIntOrderToConfirmFamily(int intIndex) {
+    this.intIndex= intIndex;
+    notifyListeners();
+  }
+}
+class stringNoteCustomer extends ChangeNotifier {
+  String noteCustomer ='';
+
+  void changeStringNoteCustomer( String noteCustomer) {
+    this.noteCustomer= noteCustomer;
+    notifyListeners();
+  }
+}
 

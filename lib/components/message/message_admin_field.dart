@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_button.dart';
 import 'package:producer_family_app/style/style_colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:producer_family_app/style/style_field.dart';
 TextEditingController _message=_message;
 
-Padding message_admin_field(BuildContext context) {
+Padding messageAdminField(BuildContext context) {
   return Padding(
     padding: EdgeInsetsDirectional.only(
       start: wPadding,
@@ -28,7 +28,7 @@ Padding message_admin_field(BuildContext context) {
         ),
         Row(
           children: [
-            Spacer(),
+            const Spacer(),
             StyleButton(
               AppLocalizations.of(context)!.send,onPressed: (){},
               backgroundColor: kSpecialColor,

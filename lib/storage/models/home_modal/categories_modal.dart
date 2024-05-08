@@ -9,19 +9,19 @@ class BaseResponse {
     if (json['data'] != null) {
       data = <CategoriesModal>[];
       json['data'].forEach((v) {
-        data?.add(new CategoriesModal.fromJson(v));
+        data?.add(CategoriesModal.fromJson(v));
       });
     }
     code = json['code'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data?.map((v) => v.toJson()).toList();
     }
-    data['code'] = this.code;
+    data['code'] = code;
     return data;
   }
 }
@@ -47,13 +47,13 @@ class CategoriesModal {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['arname'] = this.arname;
-    data['enname'] = this.enname;
-    data['deleted'] = this.deleted;
-    data['suspensed'] = this.suspensed;
-    data['created_at'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['arname'] = arname;
+    data['enname'] = enname;
+    data['deleted'] = deleted;
+    data['suspensed'] = suspensed;
+    data['created_at'] = createdAt;
     return data;
   }
 }

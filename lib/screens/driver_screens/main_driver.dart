@@ -1,20 +1,24 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:producer_family_app/screens/driver_screens/driver_enter/orders/orders_driver_main.dart';
 import 'package:producer_family_app/screens/public_screens/administration.dart';
 import 'package:producer_family_app/screens/public_screens/notification_screen.dart';
 import 'package:producer_family_app/screens/public_screens/profile_screen.dart';
 import 'package:producer_family_app/screens/public_screens/statistics.dart';
+import 'package:producer_family_app/storage/notificatons.dart';
+import 'package:producer_family_app/storage/providersAndGetx/login_profile_getx.dart';
 import 'package:producer_family_app/style/size_config.dart';
 import 'package:producer_family_app/style/style_colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:producer_family_app/style/style_text.dart';
 
 class MainDriver extends StatefulWidget {
-  int currentIndex;
-  int orderIndex;
+  final int currentIndex;
+  final int orderIndex;
 
-  MainDriver({
+  const MainDriver({
     this.currentIndex = 2,
     this.orderIndex = 0,
   });
@@ -25,8 +29,7 @@ class MainDriver extends StatefulWidget {
 
 class _MainDriverState extends State<MainDriver>
     with SingleTickerProviderStateMixin {
-  TabController? _tabController;
-
+  late TabController? _tabController;
 
   int _currentIndex = 2;
 
@@ -36,31 +39,35 @@ class _MainDriverState extends State<MainDriver>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _currentIndex = widget.currentIndex;
+    managenotificationAction(context);
   }
 
   @override
   void dispose() {
-    super.dispose();
     _tabController!.dispose();
+    super.dispose();
   }
+
+  getProfileGetx controller = Get.put(getProfileGetx());
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _screensBottomNavigationBar = [
-
-      ProfileScreen(
+    List<Widget> screensBottomNavigationBar = [
+      const ProfileScreen(
         driver: true,
       ),
-      Administration(
+      const Administration(
         header: true,
       ),
-      Statistics(),
+      const Statistics(),
       NotificationScreen(),
-      OrdersDriverMain(orderIndex:widget.orderIndex ,),
+      OrdersDriverMain(
+        orderIndex: widget.orderIndex,
+      ),
     ];
 
     return Scaffold(
-        body: _screensBottomNavigationBar.elementAt(_currentIndex),
+        body: screensBottomNavigationBar.elementAt(_currentIndex),
         bottomNavigationBar: CurvedNavigationBar(
           backgroundColor: kSpecialColor.withOpacity(.8),
           buttonBackgroundColor: kBackgroundColor,
@@ -70,7 +77,7 @@ class _MainDriverState extends State<MainDriver>
               _currentIndex = index;
             });
           },
-          animationDuration: Duration(milliseconds: 500),
+          animationDuration: const Duration(milliseconds: 500),
           index: _currentIndex,
           height: SizeConfig.scaleWidth(65),
           items: [
@@ -79,12 +86,16 @@ class _MainDriverState extends State<MainDriver>
               children: [
                 Icon(
                   Icons.delivery_dining,
-                  color: kSecondaryColor.withOpacity(.8),
+                  color: controller.profile['available'] == 0
+                      ? kRefuse
+                      : kSpecialColor,
                 ),
                 StyleText(
                   AppLocalizations.of(context)!.profile,
                   fontSize: fSmallv,
-                  textColor: kSecondaryColor.withOpacity(.8),
+                  textColor: controller.profile['available'] == 0
+                      ? kRefuse
+                      : kSpecialColor,
                 )
               ],
             ),
@@ -93,31 +104,34 @@ class _MainDriverState extends State<MainDriver>
               children: [
                 Icon(
                   Icons.admin_panel_settings_outlined,
-                  color: kSecondaryColor.withOpacity(.8),
+                  color: kSpecialColor,
                 ),
                 StyleText(
                   AppLocalizations.of(context)!.chat,
                   fontSize: fSmallv,
-                  textColor: kSecondaryColor.withOpacity(.8),
+                  textColor: kSpecialColor,
                 )
               ],
             ),
             CircleAvatar(
               radius: SizeConfig.scaleWidth(23),
-              // radius: SizeConfig.scaleHeight(100),
-              backgroundImage: AssetImage('assets/images/family_logo.png'),
+              backgroundImage: const AssetImage(
+                'assets/images/logonourahpinkk.png',
+              ),
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.transparent,
             ),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.notifications_none_outlined,
-                  color: kSecondaryColor.withOpacity(.8),
+                  color: kSpecialColor,
                 ),
                 StyleText(
                   AppLocalizations.of(context)!.notifications,
                   fontSize: fSmallv,
-                  textColor: kSecondaryColor.withOpacity(.8),
+                  textColor: kSpecialColor,
                 )
               ],
             ),
@@ -126,18 +140,16 @@ class _MainDriverState extends State<MainDriver>
               children: [
                 Icon(
                   Icons.backup_table,
-                  color: kSecondaryColor.withOpacity(.8),
+                  color: kSpecialColor,
                 ),
                 StyleText(
                   AppLocalizations.of(context)!.orders,
                   fontSize: fSmallv,
-                  textColor: kSecondaryColor.withOpacity(.8),
+                  textColor: kSpecialColor,
                 )
               ],
             ),
           ],
-        )
-
-        );
+        ));
   }
 }

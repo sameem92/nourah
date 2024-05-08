@@ -1,18 +1,23 @@
+import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:producer_family_app/components/headers/app_bar_family.dart';
 import 'package:producer_family_app/components/show_helper.dart';
 import 'package:producer_family_app/screens/public_screens/forget_password_screen.dart';
 import 'package:producer_family_app/screens/public_screens/map_screen.dart';
 import 'package:producer_family_app/storage/api/login_profile_controller.dart';
-import 'package:producer_family_app/storage/notificatons.dart';
+import 'package:producer_family_app/storage/providersAndGetx/home_getx.dart';
 import 'package:producer_family_app/storage/shared_preferences_controller.dart';
 import 'package:producer_family_app/style/size_config.dart';
-import 'package:producer_family_app/style/style_colors.dart';
-import 'package:producer_family_app/style/style_text.dart';
 import 'package:producer_family_app/style/style_button.dart';
+import 'package:producer_family_app/style/style_colors.dart';
 import 'package:producer_family_app/style/style_field.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:producer_family_app/style/style_text.dart';
 
 class LogInScreen extends StatefulWidget {
   bool driver;
@@ -35,14 +40,15 @@ class _LogInScreenState extends State<LogInScreen> {
     _email = TextEditingController();
     _email.addListener(() => setState(() {}));
     _password.addListener(() => setState(() {}));
+    Get.delete<CategoriesGetX>();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    super.dispose();
     _password.dispose();
     _email.dispose();
+    super.dispose();
   }
 
   var _formKey = GlobalKey<FormState>();
@@ -50,12 +56,10 @@ class _LogInScreenState extends State<LogInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWhite(
-        context,
-        title: AppLocalizations.of(context)!.signIn,
-        onPressed: () {},
-        main: true
-      ),
+      appBar: appBarWhite(context,
+          title: AppLocalizations.of(context)!.signIn,
+          onPressed: () {},
+          main: true),
       body: Padding(
         padding: EdgeInsets.only(
           left: SizeConfig.scaleWidth(30),
@@ -125,11 +129,12 @@ class _LogInScreenState extends State<LogInScreen> {
               StyleButton(
                 AppLocalizations.of(context)!.signIn,
                 onPressed: () async {
-                  bool isValidate = _formKey.currentState!.validate();
-                  if (isValidate) {
-                    await performLogin();
-                    FocusScope.of(context).unfocus();
-                  }
+                  // bool isValidate = _formKey.currentState!.validate();
+                  // if (isValidate) {
+                  // print('login0');
+                  await performLogin();
+                  // FocusScope.of(context).unfocus();
+                  // }
                 },
               ),
             ]),
@@ -140,28 +145,34 @@ class _LogInScreenState extends State<LogInScreen> {
   }
 
   Future performLogin() async {
+    // print('login1');
     if (checkData()) {
       await login();
+      // print('sasas');
     }
   }
 
   bool checkData() {
+    // print('login2');
     if (_email.text.isNotEmpty && _password.text.isNotEmpty) {
       return true;
+    } else {
+      helper(
+          context: context,
+          message: AppLocalizations.of(context)!.pleaseEnterCorrectData,
+          error: true);
+      return false;
     }
-    Helper(
-        context: context,
-        message: AppLocalizations.of(context)!.pleaseEnterCorrectData,
-        error: true);
-    return false;
   }
 
   Future login() async {
-    String?   firebase_token=await FirebaseMessaging.instance.getToken();
+    // print('login3');
+    String? firebaseToken = await FirebaseMessaging.instance.getToken();
 
-    bool loggedIn = await loginAndProfileController().loginController(
+    bool loggedIn = await LoginAndProfileController().loginController(
       context,
-      firebase_token:firebase_token! ,
+      firebaseToken: firebaseToken!,
+      loginType: widget.driver == true ? 'delivery' : 'family',
       email: _email.text,
       password: _password.text,
       language:
@@ -169,6 +180,12 @@ class _LogInScreenState extends State<LogInScreen> {
     );
 
     if (loggedIn) {
+      Get.delete(force: true);
+
+      String fileName5 = "getProfileController.json";
+      var dir5 = await getTemporaryDirectory();
+      File file5 = new File(dir5.path + "/" + fileName5);
+      if (file5.existsSync()) file5.deleteSync(recursive: true);
       widget.driver == true
           ? await SharedPreferencesController().saveLogiInDriver()
           : await SharedPreferencesController().saveLogiInFamily();
@@ -187,8 +204,10 @@ class _LogInScreenState extends State<LogInScreen> {
                         family: true,
                       )),
               (Route<dynamic> route) => false);
-      print("saveLogiInDriver::${await SharedPreferencesController().isLoggedInDriver}");
-      print("saveLogiInFamily::${await SharedPreferencesController().isLoggedInFamily}");
+      // print(
+      //     "saveLogiInDriver::${SharedPreferencesController().isLoggedInDriver}");
+      // print(
+      //     "saveLogiInFamily::${SharedPreferencesController().isLoggedInFamily}");
     }
   }
 }
